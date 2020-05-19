@@ -29,12 +29,20 @@ message("OGRE library dirs " "${OGRE_LIBRARY_DIRS}")
 message("OGRE librareis " "${OGRE_LIBRARIES}")
 message("OGRE library " "${OGRE_LIBRARY}")
 
+add_library(Grid Grid.cpp Grid.h)
 #set(SOURCES "/home/kieran/projects/ogre/OgreMain")
 #add_library(ogre_for_ide EXCLUDE_FROM_ALL ${SOURCES})
-file(COPY ${OGRE_CONFIG_DIR}/resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${OGRE_CONFIG_DIR}/resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #include_directories(BEFORE SYSTEM ${OGRE_INCLUDE_DIRS})
 add_executable(scene main.cpp)
 
 #target_include_directories(scene PUBLIC ${OGRE_INCLUDE_DIRS})
-target_link_libraries(scene OgreBites OgreRTShaderSystem)
+target_link_libraries(Grid OgreMain OgreBites)
+target_link_libraries(scene OgreBites OgreRTShaderSystem Grid)
+
+#install( DIRECTORY media DESTINATION ${PROJECT_BINARY_DIR} )
+#install( FILES resources.cfg DESTINATION ${PROJECT_BINARY_DIR} )
+
+#file(COPY media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -1,0 +1,69 @@
+material Tile/Red
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 0 0
+            }
+        }
+    }
+}
+
+material Tile/Blue
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 0 1
+            }
+        }
+    }
+}
+
+material Tile/Green
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 1 0
+            }
+        }
+    }
+}
+
+material Tile/Yellow
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 1 1
+            }
+        }
+    }
+}
+
+material Tile/Purple
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 0 1
+            }
+        }
+    }
+}

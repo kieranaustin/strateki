@@ -3,6 +3,7 @@
 //
 #include <Ogre.h>
 #include <Bites/OgreApplicationContext.h>
+#include "Grid.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -24,8 +25,10 @@ private:
     Ogre::SceneNode* m_entityNode;
     Ogre::SceneNode* m_cameraNode;
 
-    bool m_bMoveEntity = false;
-    bool m_bMoveCamera = false;
+    Grid* grid;
+
+    bool m_bRotateCamera = false;
+    bool m_bTranslateCamera = false;
 };
 
 #endif //SCENE_MAIN_H

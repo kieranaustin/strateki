@@ -30,16 +30,19 @@ message("OGRE librareis " "${OGRE_LIBRARIES}")
 message("OGRE library " "${OGRE_LIBRARY}")
 
 add_library(Grid Grid.cpp Grid.h)
+add_library(CameraControl CameraControl.cpp CameraControl.h)
+#set_target_properties(CameraControl PROPERTIES LINKER_LANGUAGE CXX)
 #set(SOURCES "/home/kieran/projects/ogre/OgreMain")
 #add_library(ogre_for_ide EXCLUDE_FROM_ALL ${SOURCES})
 #file(COPY ${OGRE_CONFIG_DIR}/resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 #include_directories(BEFORE SYSTEM ${OGRE_INCLUDE_DIRS})
-add_executable(scene main.cpp)
+add_executable(scene main.cpp main.h)
 
 #target_include_directories(scene PUBLIC ${OGRE_INCLUDE_DIRS})
 target_link_libraries(Grid OgreMain OgreBites)
-target_link_libraries(scene OgreBites OgreRTShaderSystem Grid OgreTerrain)
+target_link_libraries(CameraControl OgreBites OgreTerrain)
+target_link_libraries(scene OgreBites OgreRTShaderSystem Grid CameraControl OgreTerrain)
 
 #install( DIRECTORY media DESTINATION ${PROJECT_BINARY_DIR} )
 #install( FILES resources.cfg DESTINATION ${PROJECT_BINARY_DIR} )

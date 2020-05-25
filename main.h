@@ -7,6 +7,7 @@
 #include <Terrain/OgreTerrainGroup.h>
 #include <OgreCameraMan.h>
 #include "Grid.h"
+#include "CameraControl.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -32,25 +33,16 @@ private:
     void getTerrainImage(bool flipX, bool flipY, Ogre::Image& img);
     void initBlendMaps(Ogre::Terrain* terrain);
 
-    void handleCollisionWithTerrain();
-    float m_lastHeight;
-
     bool m_TerrainsImported = false;
     Ogre::SceneManager* m_sceneManager;
 
-    Ogre::SceneNode* m_entityNode;
-    Ogre::SceneNode* m_cameraNode;
-    Ogre::SceneNode* m_cameraRigNode;
     Ogre::Camera* m_camera;
-    OgreBites::CameraMan* m_cameraMan;
+    CameraControl* m_cameraControl;
 
     Ogre::TerrainGlobalOptions* m_TerrainGlobOpts;
     Ogre::TerrainGroup* m_TerrainGroup;
 
     Grid* grid;
-
-    bool m_bRotateCamera = false;
-    bool m_bTranslateCamera = false;
 };
 
 #endif //SCENE_MAIN_H

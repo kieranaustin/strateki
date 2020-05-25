@@ -28,103 +28,32 @@ scene::~scene()
     delete grid;
     delete m_TerrainGlobOpts;
     delete m_TerrainGroup;
+    delete m_cameraControl;
+    delete m_camera;
+    delete m_sceneManager;
 }
 
-bool scene::mousePressed(const OgreBites::MouseButtonEvent &evt) {
-    if(evt.button == OgreBites::BUTTON_LEFT)
-    {
-        m_bRotateCamera = true;
-    }
-    if(evt.button == OgreBites::BUTTON_RIGHT)
-    {
-        m_bTranslateCamera = true;
-    }
+bool scene::mousePressed(const OgreBites::MouseButtonEvent &evt)
+{
+    m_cameraControl->mousePressed(evt);
     return true;
 }
 
 bool scene::mouseReleased(const OgreBites::MouseButtonEvent &evt)
 {
-    if(evt.button == OgreBites::BUTTON_LEFT)
-    {
-        m_bRotateCamera = false;
-    }
-    if(evt.button == OgreBites::BUTTON_RIGHT)
-    {
-        m_bTranslateCamera = false;
-    }
+    m_cameraControl->mouseReleased(evt);
     return true;
 }
 
 bool scene::mouseMoved(const OgreBites::MouseMotionEvent &evt)
 {
-    if(m_bTranslateCamera)
-    {
-        Vector3 curPos = m_cameraRigNode->getPosition();
-        Vector3 camPos = m_cameraNode->_getDerivedPosition();
-        Vector3 newPos = curPos;
-
-        float distance = -m_cameraNode->getPosition().y/240.0f;
-        distance = distance<500.0f ? distance : 500.0f;
-        newPos -= evt.xrel*distance * m_cameraRigNode->getOrientation().xAxis();
-        newPos += evt.yrel*distance * m_cameraRigNode->getOrientation().xAxis().perpendicular();
-        float heightRig = m_TerrainGroup->getHeightAtWorldPosition(newPos.x, newPos.y, 0.0);
-        float heightCam = m_TerrainGroup->getHeightAtWorldPosition(camPos.x, camPos.y, 0.0)+10.f;
-        if (heightRig < heightCam)
-        {
-            newPos.z = heightCam;
-        }
-        else
-        {
-            newPos.z = heightRig;
-        }
-
-        if ( newPos.x > TERRAIN_WORLD_SIZE/2.025f)
-        {
-            newPos.x = TERRAIN_WORLD_SIZE/2.025f;
-        }
-        if ( newPos.x < -TERRAIN_WORLD_SIZE/2.025f)
-        {
-            newPos.x = -TERRAIN_WORLD_SIZE/2.025f;
-        }
-        if ( newPos.y > TERRAIN_WORLD_SIZE/2.025f)
-        {
-            newPos.y = TERRAIN_WORLD_SIZE/2.025f;
-        }
-        if ( newPos.y < -TERRAIN_WORLD_SIZE/2.025f)
-        {
-            newPos.y = -TERRAIN_WORLD_SIZE/2.025f;
-        }
-
-        m_cameraRigNode->setPosition(newPos);
-        //handleCollisionWithTerrain();
-    }
-    else if (m_bRotateCamera)
-    {
-        m_cameraRigNode->roll(Ogre::Radian(evt.xrel/180.0f), Ogre::Node::TS_PARENT);
-
-        Ogre::Radian curTotalPitch = m_cameraRigNode->getOrientation().getPitch(false);
-        Ogre::Radian rotatePitch(-evt.yrel/360.0);
-        Ogre::Radian newPitch = curTotalPitch + rotatePitch;
-        if(newPitch < Ogre::Radian(0.0f) && newPitch > -Ogre::Radian(M_PI/2.1f))
-        {
-            m_cameraRigNode->pitch(rotatePitch);
-        }
-
-        handleCollisionWithTerrain();
-    }
+    m_cameraControl->mouseMoved(evt);
     return true;
 }
 
 bool scene::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
 {
-    float scaleFactor = 1.0 + evt.y /10.0f;
-    Vector3 newPos = scaleFactor * m_cameraNode->getPosition();
-    float distance =  -newPos.y;
-    if (distance > 60.0f && distance < TERRAIN_WORLD_SIZE/1.33f)
-    {
-        m_cameraNode->setPosition(newPos);
-        handleCollisionWithTerrain();
-    }
+    m_cameraControl->mouseWheelRolled(evt);
     return true;
 }
 
@@ -135,43 +64,6 @@ bool scene::keyPressed(const OgreBites::KeyboardEvent& evt)
         getRoot()->queueEndRendering();
     }
     return true;
-}
-
-void scene::handleCollisionWithTerrain()
-{
-    Ogre::Vector3 posCam = m_cameraNode->_getDerivedPosition();
-    Ogre::Vector3 posRig = m_cameraRigNode->_getDerivedPosition();
-
-    float minHeightCam = m_TerrainGroup->getHeightAtWorldPosition(posCam.x, posCam.y, 0)+10.0f;
-    float minHeightRig = m_TerrainGroup->getHeightAtWorldPosition(posRig.x, posRig.y, 0);
-
-    float diffCam = minHeightCam - posCam.z;
-    float diffRig = minHeightRig - posRig.z;
-    float diffCamRig = diffCam - diffRig;
-
-    if (std::abs(m_lastHeight - minHeightCam) > 0.015f)
-    {
-        if(diffCam >= 0.0f)
-        {
-            m_cameraRigNode->translate(0,0,diffCam);
-        }
-        else
-        {
-            if (diffRig <= 0.0f && diffCamRig >= 0.0f)
-            {
-                m_cameraRigNode->translate(0,0,diffCam);
-            }
-            else
-            {
-                if (diffRig > 0.0f && diffCamRig >= 0.0f)
-                {
-                    m_cameraRigNode->translate(0,0,diffRig);
-                }
-            }
-        }
-    }
-
-    m_lastHeight = minHeightCam;
 }
 
 void scene::setup(void)
@@ -191,12 +83,13 @@ void scene::setup(void)
     Ogre::RTShader::ShaderGenerator* shadergen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
     shadergen->addSceneManager(m_sceneManager);
 
-
     // setup Grid
+    /*
     int gridX = 15;
     int gridY = 20;
     grid = new Grid(gridX, gridY);
     grid->setup(m_sceneManager);
+     */
 
     // without light we would just get a black screen
     m_sceneManager->setAmbientLight(ColourValue(1.0f,1.0f,1.0f));
@@ -205,38 +98,19 @@ void scene::setup(void)
     lightNode->setPosition(0, 0, 1500000);
     lightNode->attachObject(light);
 
-    // also need to tell where we are
-    m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_cameraNode = m_cameraRigNode->createChildSceneNode();
-    //m_TerrainGroup->getHeightAtWorldPosition(0)
-    m_cameraRigNode->setPosition(gridX/2.0, gridY/2.0, 0);
-    m_cameraRigNode->pitch(Ogre::Radian(-M_PI/4.0f));
-    //m_cameraRigNode->setPosition(0.0, 0.0, 0);
-    m_cameraNode->setPosition(0, -60, 0);
-    m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
+    loadTerrain();
 
-    // create the camera
+    // create the camera and attach to camera controller
     m_camera = m_sceneManager->createCamera("mainCamera");
     m_camera->setNearClipDistance(0.1); // specific to this sample
     m_camera->setFarClipDistance(1200000.0f);
     m_camera->setAutoAspectRatio(true);
-    m_cameraNode->attachObject(m_camera);
+
+    m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_TerrainGroup);
+    m_cameraControl->showCoordinateAxes(false);
 
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);
-
-    // finally something to render
-    Ogre::Entity* entSinbad = m_sceneManager->createEntity("Sinbad.mesh");
-    //m_entityNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    //m_entityNode->setScale(0.1, 0.1, 0.1);
-    //m_entityNode->pitch(Ogre::Radian(M_PI/2.));
-    //m_entityNode->setPosition(gridX/2., gridY/2.0, 0.5);
-    //m_entityNode->attachObject(entSinbad);
-    m_cameraRigNode->attachObject(entSinbad);
-
-    loadTerrain();
-
-    m_cameraRigNode->setPosition(0,0,m_TerrainGroup->getHeightAtWorldPosition(0,0,0));
 }
 
 void scene::loadTerrain()
@@ -249,7 +123,9 @@ void scene::loadTerrain()
     l->setDiffuseColour(ColourValue::White);
     l->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
 
+    /*
     m_cameraNode->attachObject(l);
+     */
 
 
     m_TerrainGlobOpts = new Ogre::TerrainGlobalOptions();

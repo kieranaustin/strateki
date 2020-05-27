@@ -13,6 +13,7 @@ class CameraControl
 {
 public:
     CameraControl();
+    CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr);
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp);
     ~CameraControl();
 
@@ -22,26 +23,28 @@ public:
     bool mouseReleased(const OgreBites::MouseButtonEvent& evt);
 
     void showCoordinateAxes(bool show);
+    void attachLight(Ogre::Light* light);
+    void attachTerrainGroup(Ogre::TerrainGroup* terrainGroup);
 
 
 private:
     void handleCollisionWithTerrain();
 
-    Ogre::Camera* m_camera;
-    Ogre::SceneManager* m_sceneManager;
-    Ogre::TerrainGroup* m_TerrainGroup;
+    Ogre::Camera* m_camera = nullptr;
+    Ogre::SceneManager* m_sceneManager = nullptr;
 
+    Ogre::SceneNode* m_cameraRigNode = nullptr;
+    Ogre::SceneNode* m_cameraNode = nullptr;
 
-    Ogre::SceneNode* m_cameraRigNode;
-    Ogre::SceneNode* m_cameraNode;
+    Ogre::TerrainGroup* m_TerrainGroup = nullptr;
 
     bool m_bRotateCamera = false;
     bool m_bTranslateCamera = false;
 
     float m_lastHeight = 0.0f;
 
-    Ogre::Real m_TerrainWorldSize;
-    uint16_t m_TerrainSize;
+    Ogre::Real m_TerrainWorldSize = 1/0.0f;
+    uint16_t m_TerrainSize = 0;
 
     Ogre::Entity* m_coordAxes = nullptr;
 };

@@ -98,16 +98,18 @@ void scene::setup(void)
     lightNode->setPosition(0, 0, 1500000);
     lightNode->attachObject(light);
 
-    loadTerrain();
-
     // create the camera and attach to camera controller
     m_camera = m_sceneManager->createCamera("mainCamera");
     m_camera->setNearClipDistance(0.1); // specific to this sample
     m_camera->setFarClipDistance(1200000.0f);
     m_camera->setAutoAspectRatio(true);
 
-    m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_TerrainGroup);
-    m_cameraControl->showCoordinateAxes(false);
+    m_cameraControl = new CameraControl(m_camera, m_sceneManager);
+
+    loadTerrain();
+
+    m_cameraControl->attachTerrainGroup(m_TerrainGroup);
+    //m_cameraControl->showCoordinateAxes(true);
 
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);
@@ -118,14 +120,14 @@ void scene::loadTerrain()
     Vector3 lightdir(0, 1, 0);
     lightdir.normalise();
     Ogre::Light* l = m_sceneManager->createLight("tstLight");
-    l->setType(Light::LT_DIRECTIONAL);
+    l->setPosition(0,0,0);
+    l->setType(Light::LT_POINT);
     l->setDirection(lightdir);
     l->setDiffuseColour(ColourValue::White);
     l->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
 
-    /*
-    m_cameraNode->attachObject(l);
-     */
+    //m_cameraControl->attachLight(l);
+    //m_camera->getParentSceneNode()->attachObject(l);
 
 
     m_TerrainGlobOpts = new Ogre::TerrainGlobalOptions();

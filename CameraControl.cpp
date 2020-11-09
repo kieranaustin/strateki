@@ -7,15 +7,39 @@
 
 CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
         : m_camera(cam)
-        , m_sceneManager(scnMgr)
-{
+        , m_sceneManager(scnMgr) {
     m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
     m_cameraNode = m_cameraRigNode->createChildSceneNode();
     m_cameraRigNode->setPosition(0, 0, 0);
-    m_cameraRigNode->pitch(Ogre::Radian(-M_PI/4.0f));
+    m_cameraRigNode->pitch(Ogre::Radian(-M_PI / 4.0f));
     m_cameraNode->setPosition(0, -60, 0);
     m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
     m_cameraNode->attachObject(m_camera);
+
+    Ogre::Light* camLightFront = m_sceneManager->createLight("CameraLightFront");
+    camLightFront->setType(Ogre::Light::LT_SPOTLIGHT);
+    Ogre::Vector3 lightdir(0, 0, -1);
+    lightdir.normalise();
+    camLightFront->setDirection(lightdir);
+    camLightFront->setVisible(true);
+    camLightFront->setDiffuseColour(Ogre::ColourValue::White);
+    camLightFront->setSpecularColour(Ogre::ColourValue::White);
+    Ogre::SceneNode *lightNodeFront = m_cameraNode->createChildSceneNode();
+    lightNodeFront->setPosition(0, 0, 0);
+    lightNodeFront->attachObject(camLightFront);
+
+    Ogre::Light* camLightBack = m_sceneManager->createLight("CameraLightBack");
+    camLightBack->setType(Ogre::Light::LT_SPOTLIGHT);
+    lightdir = Ogre::Vector3(0,-1,0);
+    lightdir.normalise();
+    camLightBack->setDirection(lightdir);
+    camLightBack->setVisible(true);
+    camLightBack->setDiffuseColour(Ogre::ColourValue::White);
+    camLightBack->setSpecularColour(Ogre::ColourValue::White);
+    camLightBack->setPowerScale(Ogre::Real(10000));
+    Ogre::SceneNode *lightNodeBack = m_cameraRigNode->createChildSceneNode();
+    lightNodeBack->setPosition(0, 100, 0);
+    lightNodeBack->attachObject(camLightBack);
 }
 
 CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp)
@@ -27,9 +51,21 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre
     m_cameraNode = m_cameraRigNode->createChildSceneNode();
     m_cameraRigNode->setPosition(0, 0, 0);
     m_cameraRigNode->pitch(Ogre::Radian(-M_PI/4.0f));
-    m_cameraNode->setPosition(0, -60, 0);
+    m_cameraNode->setPosition(0, -600, 0);
     m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
     m_cameraNode->attachObject(m_camera);
+
+    Ogre::Light* light = m_sceneManager->createLight("CameraLight");
+    light->setType(Ogre::Light::LT_SPOTLIGHT);
+    light->setDirection(Ogre::Vector3(0,1,0));
+    light->setVisible(true);
+    light->setDiffuseColour(Ogre::ColourValue::Red);
+    light->setSpecularColour(Ogre::ColourValue::Red);
+    Ogre::SceneNode* lightNode = m_cameraNode->createChildSceneNode();
+    lightNode->setPosition(0, 0, 0);
+    lightNode->attachObject(light);
+    //m_cameraRigNode->attachObject(light);
+
     m_TerrainWorldSize = m_TerrainGroup->getTerrainWorldSize();
     m_TerrainSize = m_TerrainGroup->getTerrainSize();
 
@@ -64,7 +100,9 @@ void CameraControl::showCoordinateAxes(bool show)
         if(m_coordAxes == nullptr)
         {
             //m_coordAxes = m_sceneManager->createEntity("Sinbad.mesh");
-            m_coordAxes = m_sceneManager->createEntity("Cube.mesh");
+            //m_coordAxes = m_sceneManager->createEntity("Cube.mesh");
+            //m_coordAxes = m_sceneManager->createEntity("MyCubee.mesh");
+            m_coordAxes = m_sceneManager->createEntity("lighter.mesh");
             m_cameraRigNode->attachObject(m_coordAxes);
             return;
         }
@@ -172,7 +210,7 @@ bool CameraControl::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
     float scaleFactor = 1.0 + evt.y /10.0f;
     Ogre::Vector3 newPos = scaleFactor * m_cameraNode->getPosition();
     float distance =  -newPos.y;
-    if (distance > 60.0f && distance < m_TerrainWorldSize/1.33f)
+    if (distance > 10.0f && distance < m_TerrainWorldSize/1.33f)
     {
         m_cameraNode->setPosition(newPos);
         handleCollisionWithTerrain();

@@ -47,5 +47,5 @@ target_link_libraries(scene OgreBites OgreRTShaderSystem Grid CameraControl Ogre
 #install( DIRECTORY media DESTINATION ${PROJECT_BINARY_DIR} )
 #install( FILES resources.cfg DESTINATION ${PROJECT_BINARY_DIR} )
 
-#file(COPY media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

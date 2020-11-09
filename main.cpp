@@ -13,7 +13,7 @@
 #define TERRAIN_PAGE_MAX_X 0
 #define TERRAIN_PAGE_MAX_Y 0
 
-#define TERRAIN_WORLD_SIZE 12000.0f
+#define TERRAIN_WORLD_SIZE 8000.0f
 #define TERRAIN_SIZE 513
 
 using namespace Ogre;
@@ -92,16 +92,22 @@ void scene::setup(void)
      */
 
     // without light we would just get a black screen
-    m_sceneManager->setAmbientLight(ColourValue(1.0f,1.0f,1.0f));
+    //m_sceneManager->setAmbientLight(ColourValue(0.1f,0.1f,0.1f));
     Ogre::Light* light = m_sceneManager->createLight("MainLight");
+    light->setType(Ogre::Light::LT_SPOTLIGHT);
+    light->setSpotlightRange(Ogre::Degree(30), Ogre::Degree(50));
+    light->setDirection(0,0,-1);
+    light->setSpecularColour(ColourValue::Blue);
+    light->setDiffuseColour(ColourValue::Blue);
+    light->setPowerScale(10000);
     Ogre::SceneNode* lightNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    lightNode->setPosition(0, 0, 1500000);
+    lightNode->setPosition(0, 0, 500);
     lightNode->attachObject(light);
 
     // create the camera and attach to camera controller
     m_camera = m_sceneManager->createCamera("mainCamera");
     m_camera->setNearClipDistance(0.1); // specific to this sample
-    m_camera->setFarClipDistance(1200000.0f);
+    m_camera->setFarClipDistance(12000000.0f);
     m_camera->setAutoAspectRatio(true);
 
     m_cameraControl = new CameraControl(m_camera, m_sceneManager);
@@ -109,22 +115,23 @@ void scene::setup(void)
     loadTerrain();
 
     m_cameraControl->attachTerrainGroup(m_TerrainGroup);
-    //m_cameraControl->showCoordinateAxes(true);
+    m_cameraControl->showCoordinateAxes(true);
 
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);
+
 }
 
 void scene::loadTerrain()
 {
-    Vector3 lightdir(0, 1, 0);
+    Vector3 lightdir(0, 0, -1);
     lightdir.normalise();
     Ogre::Light* l = m_sceneManager->createLight("tstLight");
-    l->setPosition(0,0,0);
-    l->setType(Light::LT_POINT);
+    l->setType(Light::LT_DIRECTIONAL);
     l->setDirection(lightdir);
     l->setDiffuseColour(ColourValue::White);
-    l->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
+    //l->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
+    l->setSpecularColour(ColourValue::White);
 
     //m_cameraControl->attachLight(l);
     //m_camera->getParentSceneNode()->attachObject(l);
@@ -194,7 +201,7 @@ void scene::configureTerrainDefaults(Ogre::Light *light)
     Ogre::Terrain::ImportData& defaultimp = m_TerrainGroup->getDefaultImportSettings();
     defaultimp.terrainSize = TERRAIN_SIZE;
     defaultimp.worldSize = TERRAIN_WORLD_SIZE;
-    defaultimp.inputScale = 600;
+    defaultimp.inputScale = 400;
     defaultimp.minBatchSize = 33;
     defaultimp.maxBatchSize = 65;
     //! [import_settings]
@@ -246,7 +253,8 @@ void scene::defineTerrain(long x, long y, bool flat)
 void scene::getTerrainImage(bool flipX, bool flipY, Ogre::Image& img)
 {
     //! [heightmap]
-    img.load("terrain.png", m_TerrainGroup->getResourceGroup());
+    //img.load("terrain.png", m_TerrainGroup->getResourceGroup());
+    img.load("terrain_cornerhill.png", "Map");
     if (flipX)
         img.flipAroundY();
     if (flipY)

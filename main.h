@@ -9,7 +9,7 @@
 #include "Grid.h"
 #include "CameraControl.h"
 #include "TerrainLoader.h"
-#include "EntityManager.h"
+#include "ecs/EntityManager.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H

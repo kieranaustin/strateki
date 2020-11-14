@@ -9,6 +9,7 @@
 #include "Grid.h"
 #include "CameraControl.h"
 #include "TerrainLoader.h"
+#include "EntityManager.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -23,11 +24,19 @@ public:
 
     void setup(void);
 
-    bool keyPressed(const OgreBites::KeyboardEvent& evt);
-    bool mouseMoved(const OgreBites::MouseMotionEvent& evt);
-    bool mousePressed(const OgreBites::MouseButtonEvent& evt);
-    bool mouseReleased(const OgreBites::MouseButtonEvent& evt);
-    bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt);
+    /*
+     * gets called in main loop from root before frameEnded and after frameStarted
+     * usage for some class A derived from InputListener: frameStarted can give feedback if class A is 'ready'(?) for frame rendering by returning true or false.
+     */
+    bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
+    bool keyPressed(const OgreBites::KeyboardEvent& evt) override;
+    /*
+     * not needed right now.
+    bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
+    bool mousePressed(const OgreBites::MouseButtonEvent& evt) override;
+    bool mouseReleased(const OgreBites::MouseButtonEvent& evt) override;
+    bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
+     */
 
 private:
     Ogre::SceneManager* m_sceneManager;
@@ -35,6 +44,7 @@ private:
     Ogre::Camera* m_camera;
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
+    EntityManager* m_entityManager;
 
     Grid* grid;
 };

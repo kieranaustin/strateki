@@ -9,13 +9,15 @@
 #define SCENE_CAMERACONTROL_H
 
 class CameraControl
-        : OgreBites::InputListener
+        : public OgreBites::InputListener, public Ogre::FrameListener
 {
 public:
     CameraControl();
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr);
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp);
     ~CameraControl();
+
+    bool frameStarted(const Ogre::FrameEvent& evt);
 
     bool mouseMoved(const OgreBites::MouseMotionEvent& evt);
     bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt);
@@ -35,6 +37,7 @@ private:
 
     Ogre::SceneNode* m_cameraRigNode = nullptr;
     Ogre::SceneNode* m_cameraNode = nullptr;
+    Ogre::SceneNode* m_coordAxesNode = nullptr;
 
     Ogre::TerrainGroup* m_TerrainGroup = nullptr;
 
@@ -47,6 +50,7 @@ private:
     uint16_t m_TerrainSize = 0;
 
     Ogre::Entity* m_coordAxes = nullptr;
+    Ogre::AnimationState* m_coordAxesAnimState = nullptr;
 };
 
 #endif //SCENE_CAMERACONTROL_H

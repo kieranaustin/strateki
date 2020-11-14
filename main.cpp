@@ -27,36 +27,31 @@ scene::~scene()
     delete m_sceneManager;
 }
 
-bool scene::mousePressed(const OgreBites::MouseButtonEvent &evt)
-{
-    m_cameraControl->mousePressed(evt);
-    return true;
-}
-
-bool scene::mouseReleased(const OgreBites::MouseButtonEvent &evt)
-{
-    m_cameraControl->mouseReleased(evt);
-    return true;
-}
-
-bool scene::mouseMoved(const OgreBites::MouseMotionEvent &evt)
-{
-    m_cameraControl->mouseMoved(evt);
-    return true;
-}
-
-bool scene::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
-{
-    m_cameraControl->mouseWheelRolled(evt);
-    return true;
-}
 
 bool scene::keyPressed(const OgreBites::KeyboardEvent& evt)
 {
     if (evt.keysym.sym == OgreBites::SDLK_ESCAPE)
     {
-        getRoot()->queueEndRendering();
+        getRoot()->queueEndRendering(true);
     }
+    return true;
+}
+
+bool scene::frameRenderingQueued(const Ogre::FrameEvent& evt)
+{
+    // mInputListeners comes from Base Class ApplicationContextBase
+    for(InputListenerList::iterator it = mInputListeners.begin();
+        it != mInputListeners.end(); ++it) {
+        it->second->frameRendered(evt);
+    }
+    /*
+    std::vector<std::string>* entities = m_entityManager->getEntities();
+    for(auto entity : *entities)
+    {
+        m_sceneManager->getEntity(entity)->getAnimationState("Walk")->addTime(evt.timeSinceLastFrame);
+    }
+     */
+
     return true;
 }
 
@@ -64,9 +59,8 @@ void scene::setup(void)
 {
     OgreBites::ApplicationContext::setup();
 
-    addInputListener(this);
-
     Root* root = getRoot();
+
 
     //ConfigDialog* configDialog = OgreBites::getNativeConfigDialog();
     //root->showConfigDialog(configDialog);
@@ -112,9 +106,17 @@ void scene::setup(void)
     m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
+    m_entityManager = new EntityManager(m_sceneManager);
+    Ogre::Vector3 pos(0,0, 0);
+    pos.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(pos.x, pos.y, 0.0);
+    m_entityManager->makeRobot(pos);
+
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);
 
+    addInputListener(this);
+    addInputListener(m_cameraControl);
+    root->addFrameListener(m_cameraControl);
 }
 
 

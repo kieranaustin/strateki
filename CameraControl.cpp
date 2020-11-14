@@ -78,6 +78,16 @@ CameraControl::~CameraControl()
     delete m_cameraRigNode;
 }
 
+bool CameraControl::frameStarted(const Ogre::FrameEvent &evt)
+{
+    if (m_coordAxesAnimState == nullptr)
+    {
+        return true;
+    }
+    m_coordAxesAnimState->addTime(evt.timeSinceLastFrame);
+    return true;
+}
+
 void CameraControl::attachTerrainGroup(Ogre::TerrainGroup *terrainGroup)
 {
     m_TerrainGroup = terrainGroup;
@@ -99,11 +109,37 @@ void CameraControl::showCoordinateAxes(bool show)
     {
         if(m_coordAxes == nullptr)
         {
+            m_coordAxesNode = m_cameraRigNode->createChildSceneNode();
             //m_coordAxes = m_sceneManager->createEntity("Sinbad.mesh");
             //m_coordAxes = m_sceneManager->createEntity("Cube.mesh");
             //m_coordAxes = m_sceneManager->createEntity("MyCubee.mesh");
-            m_coordAxes = m_sceneManager->createEntity("lighter.mesh");
-            m_cameraRigNode->attachObject(m_coordAxes);
+            //m_coordAxes = m_sceneManager->createEntity("lighter.mesh");
+            m_coordAxes = m_sceneManager->createEntity("Wolf1_Material__wolf_col_tga_0.mesh");
+            Ogre::Entity* lighter = m_sceneManager->createEntity("lighter.mesh");
+            Ogre::Entity* lighter2 = m_sceneManager->createEntity("lighter.mesh");
+            std::cout << "wolf name = " << m_coordAxes->getName() << std::endl;
+            std::cout << "lighter name = " << lighter->getName() << std::endl;
+            std::cout << "lighter2 name = " << lighter2->getName() << std::endl;
+            //m_coordAxes = m_sceneManager->createEntity("robot.mesh");
+            m_coordAxesNode->attachObject(m_coordAxes);
+            m_coordAxesNode->rotate(Ogre::Vector3(0,0,1), Ogre::Degree(90), Ogre::Node::TS_PARENT);
+            //m_coordAxesNode->rotate(Ogre::Vector3(0,1,0), Ogre::Degree(90), Ogre::Node::TS_PARENT);
+            //m_coordAxesNode->rotate(Ogre::Vector3(-1,0,0), Ogre::Degree(90), Ogre::Node::TS_PARENT);
+            Ogre::AnimationStateSet* animSet = m_coordAxes->getAllAnimationStates();
+            std::cout << "coordAxes Animation States: " << std::endl;
+            for (auto it = animSet->getAnimationStateIterator().begin(); it != animSet->getAnimationStateIterator().end(); it++)
+            {
+                std::cout << it->first << std::endl;
+            }
+
+            //m_coordAxesAnimState = m_coordAxes->getAnimationState("Walk");
+            //m_coordAxesAnimState = m_coordAxes->getAnimationState("01_Run_Armature_0");
+            //m_coordAxesAnimState = m_coordAxes->getAnimationState("02_walk_Armature_0");
+            //m_coordAxesAnimState = m_coordAxes->getAnimationState("03_creep_Armature_0");
+            m_coordAxesAnimState = m_coordAxes->getAnimationState("04_Idle_Armature_0");
+            //m_coordAxesAnimState = m_coordAxes->getAnimationState("05_site_Armature_0");
+            m_coordAxesAnimState->setLoop(true);
+            m_coordAxesAnimState->setEnabled(true);
             return;
         }
     }
@@ -210,7 +246,7 @@ bool CameraControl::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
     float scaleFactor = 1.0 + evt.y /10.0f;
     Ogre::Vector3 newPos = scaleFactor * m_cameraNode->getPosition();
     float distance =  -newPos.y;
-    if (distance > 10.0f && distance < m_TerrainWorldSize/1.33f)
+    if (distance > 1.0f && distance < m_TerrainWorldSize/1.33f)
     {
         m_cameraNode->setPosition(newPos);
         handleCollisionWithTerrain();

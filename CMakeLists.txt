@@ -32,6 +32,7 @@ message("OGRE library " "${OGRE_LIBRARY}")
 add_library(Grid Grid.cpp Grid.h)
 add_library(CameraControl CameraControl.cpp CameraControl.h)
 add_library(TerrainLoader TerrainLoader.cpp TerrainLoader.h)
+add_library(EntityManager EntityManager.cpp EntityManager.h)
 #set_target_properties(CameraControl PROPERTIES LINKER_LANGUAGE CXX)
 #set(SOURCES "/home/kieran/projects/ogre/OgreMain")
 #add_library(ogre_for_ide EXCLUDE_FROM_ALL ${SOURCES})
@@ -44,9 +45,10 @@ add_executable(scene main.cpp main.h)
 target_link_libraries(Grid OgreMain OgreBites)
 target_link_libraries(CameraControl OgreBites OgreTerrain)
 target_link_libraries(TerrainLoader OgreMain OgreTerrain)
+target_link_libraries(EntityManager OgreMain)
 target_link_libraries(scene
                         OgreBites OgreRTShaderSystem OgreTerrain
-                        Grid CameraControl TerrainLoader
+                        Grid CameraControl TerrainLoader EntityManager
         )
 
 #install( DIRECTORY media DESTINATION ${PROJECT_BINARY_DIR} )

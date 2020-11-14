@@ -5,18 +5,19 @@
 #include "EntityManager.h"
 #include "Definitions.h"
 
+template<> ecs::EntityManager *Ogre::Singleton<ecs::EntityManager>::msSingleton = 0;
+
+ecs::EntityManager *ecs::EntityManager::getSingletonPtr(void) {
+    return msSingleton;
+}
+
+ecs::EntityManager &ecs::EntityManager::getSingleton(void) {
+    assert(msSingleton);
+    return (*msSingleton);
+}
+
 namespace ecs {
 
-    template<> EntityManager *Ogre::Singleton<EntityManager>::msSingleton = 0;
-
-    EntityManager *EntityManager::getSingletonPtr(void) {
-        return msSingleton;
-    }
-
-    EntityManager &EntityManager::getSingleton(void) {
-        assert(msSingleton);
-        return (*msSingleton);
-    }
 
     EntityManager::EntityManager(Ogre::SceneManager *sceneManager)
             : m_sceneManager(sceneManager) {
@@ -26,7 +27,7 @@ namespace ecs {
     }
 
     Entity EntityManager::createEntity() {
-        assert(m_numLivingEntities < scene::MAX_ENTITIES && "Too many entities, can't create new entitiy.");
+        assert(m_numLivingEntities < ecs::MAX_ENTITIES && "Too many entities, can't create new entitiy.");
 
         Entity entity = m_entityPool.front();
         m_entityPool.pop();
@@ -45,7 +46,7 @@ namespace ecs {
     }
 
     void EntityManager::destroyEntity(Entity entity) {
-        assert(entity < scene::MAX_ENTITIES && "Cannot destroy Entity. Entity out of range.");
+        assert(entity < ecs::MAX_ENTITIES && "Cannot destroy Entity. Entity out of range.");
 
         m_signatures[entity].reset();
         m_entityPool.push(entity);
@@ -54,13 +55,13 @@ namespace ecs {
     }
 
     void EntityManager::setSignature(Entity entity, Signature signature) {
-        assert(entity < scene::MAX_ENTITIES && "Cannot set Signature. Entity out of range.");
+        assert(entity < ecs::MAX_ENTITIES && "Cannot set Signature. Entity out of range.");
 
         m_signatures[entity] = signature;
     }
 
     Signature EntityManager::getSignature(Entity entity) {
-        assert(entity < scene::MAX_ENTITIES && "Cannot get Signature. Entity out of range.");
+        assert(entity < ecs::MAX_ENTITIES && "Cannot get Signature. Entity out of range.");
 
         return m_signatures[entity];
     }

@@ -12,8 +12,14 @@
 
 namespace ecs
 {
+    class IComponentContainer
+    {
+    public:
+        virtual void destroyEntity(ecs::Entity entity) = 0;
+    };
+
     template <typename T>
-    class ComponentContainer
+    class ComponentContainer : public IComponentContainer
     {
     public:
         void addComponent(ecs::Entity entity, T component)
@@ -60,6 +66,11 @@ namespace ecs
             size_t index = m_mapEntityToIndex[entity];
 
             return m_components[index];
+        }
+
+        void destroyEntity(ecs::Entity entity) override
+        {
+            removeComponent(entity);
         }
 
     private:

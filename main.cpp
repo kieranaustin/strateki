@@ -106,7 +106,7 @@ void scene::setup(void)
     m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
-    m_entityManager = new EntityManager(m_sceneManager);
+    m_entityManager = new ecs::EntityManager(m_sceneManager);
     Ogre::Vector3 pos(0,0, 0);
     pos.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(pos.x, pos.y, 0.0);
     m_entityManager->makeRobot(pos);

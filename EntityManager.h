@@ -8,39 +8,43 @@
 #include "Definitions.h"
 #include <Ogre.h>
 
+namespace ecs {
 
-class EntityManager : public Ogre::Singleton<EntityManager>
-{
-public:
-    EntityManager(Ogre::SceneManager* sceneManager);
-    static EntityManager* getSingletonPtr(void);
-    static EntityManager& getSingleton(void);
+    class EntityManager : public Ogre::Singleton<EntityManager> {
+    public:
+        EntityManager(Ogre::SceneManager *sceneManager);
 
-    Entity createEntity();
-    Entity createEntity(Signature signature);
-    void destroyEntity(Entity entity);
-    void setSignature(Entity entity, Signature signature);
-    Signature getSignature(Entity entity);
+        static EntityManager *getSingletonPtr(void);
 
-    void makeRobot(Ogre::Vector3& pos);
+        static EntityManager &getSingleton(void);
 
-    //std::queue<scene::Entity>* getEntities() {return &m_entityPool;}; TODO: return only currently living entities
+        Entity createEntity();
 
-private:
-    Ogre::SceneManager* m_sceneManager;
+        Entity createEntity(Signature signature);
 
-    // A pool of still available entity ids, i.e., of not-living entities
-    std::queue<Entity> m_entityPool{};
-    // array of the entities signatures; index of array = entity id
-    std::array<Signature, MAX_ENTITIES> m_signatures{};
-    // counter for currently living entities
-    Entity m_numLivingEntities{};
+        void destroyEntity(Entity entity);
+
+        void setSignature(Entity entity, Signature signature);
+
+        Signature getSignature(Entity entity);
+
+        void makeRobot(Ogre::Vector3 &pos);
+
+        //std::queue<scene::Entity>* getEntities() {return &m_entityPool;}; TODO: return only currently living entities
+
+    private:
+        Ogre::SceneManager *m_sceneManager;
+
+        // A pool of still available entity ids, i.e., of not-living entities
+        std::queue<Entity> m_entityPool{};
+        // array of the entities signatures; index of array = entity id
+        std::array<Signature, MAX_ENTITIES> m_signatures{};
+        // counter for currently living entities
+        Entity m_numLivingEntities{};
 
 
+    };
 
-
-
-};
-
+}
 
 #endif //SCENE_ENTITYMANAGER_H

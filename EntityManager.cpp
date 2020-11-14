@@ -5,79 +5,76 @@
 #include "EntityManager.h"
 #include "Definitions.h"
 
-template<> EntityManager* Ogre::Singleton<EntityManager>::msSingleton = 0;
-EntityManager* EntityManager::getSingletonPtr(void)
-{
-    return msSingleton;
-}
-EntityManager& EntityManager::getSingleton(void)
-{
-    assert( msSingleton );  return ( *msSingleton );
-}
+namespace ecs {
 
-EntityManager::EntityManager(Ogre::SceneManager *sceneManager)
-    : m_sceneManager(sceneManager)
-{
-    for(Entity e = 0; e < MAX_ENTITIES; ++e)
-    {
-        m_entityPool.push(e);
+    template<> EntityManager *Ogre::Singleton<EntityManager>::msSingleton = 0;
+
+    EntityManager *EntityManager::getSingletonPtr(void) {
+        return msSingleton;
     }
-}
 
-Entity EntityManager::createEntity()
-{
-    assert(m_numLivingEntities < scene::MAX_ENTITIES && "Too many entities, can't create new entitiy.");
+    EntityManager &EntityManager::getSingleton(void) {
+        assert(msSingleton);
+        return (*msSingleton);
+    }
 
-    Entity entity = m_entityPool.front();
-    m_entityPool.pop();
+    EntityManager::EntityManager(Ogre::SceneManager *sceneManager)
+            : m_sceneManager(sceneManager) {
+        for (Entity e = 0; e < MAX_ENTITIES; ++e) {
+            m_entityPool.push(e);
+        }
+    }
 
-    ++m_numLivingEntities;
+    Entity EntityManager::createEntity() {
+        assert(m_numLivingEntities < scene::MAX_ENTITIES && "Too many entities, can't create new entitiy.");
 
-    return entity;
-}
+        Entity entity = m_entityPool.front();
+        m_entityPool.pop();
 
-Entity EntityManager::createEntity(Signature signature)
-{
-    Entity entity = createEntity();
+        ++m_numLivingEntities;
 
-    setSignature(entity, signature);
+        return entity;
+    }
 
-    return entity;
-}
+    Entity EntityManager::createEntity(Signature signature) {
+        Entity entity = createEntity();
 
-void EntityManager::destroyEntity(Entity entity)
-{
-    assert(entity < scene::MAX_ENTITIES && "Cannot destroy Entity. Entity out of range.");
+        setSignature(entity, signature);
 
-    m_signatures[entity].reset();
-    m_entityPool.push(entity);
+        return entity;
+    }
 
-    --m_numLivingEntities;
-}
+    void EntityManager::destroyEntity(Entity entity) {
+        assert(entity < scene::MAX_ENTITIES && "Cannot destroy Entity. Entity out of range.");
 
-void EntityManager::setSignature(Entity entity, Signature signature)
-{
-    assert(entity < scene::MAX_ENTITIES && "Cannot set Signature. Entity out of range.");
+        m_signatures[entity].reset();
+        m_entityPool.push(entity);
 
-    m_signatures[entity] = signature;
-}
+        --m_numLivingEntities;
+    }
 
-Signature EntityManager::getSignature(Entity entity)
-{
-    assert(entity < scene::MAX_ENTITIES && "Cannot get Signature. Entity out of range.");
+    void EntityManager::setSignature(Entity entity, Signature signature) {
+        assert(entity < scene::MAX_ENTITIES && "Cannot set Signature. Entity out of range.");
 
-    return m_signatures[entity];
-}
+        m_signatures[entity] = signature;
+    }
 
-void EntityManager::makeRobot(Ogre::Vector3& pos)
-{
-    Ogre::Entity* robot = m_sceneManager->createEntity("robot.mesh");
-    Ogre::SceneNode* robotNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    robotNode->rotate(Ogre::Vector3(1,0,0), Ogre::Degree(90));
-    robotNode->setPosition(pos.x,pos.y,pos.z);
-    robotNode->attachObject(robot);
-    //m_entities.push_back(robot->getName());
-    Ogre::AnimationState* robotAnimation = robot->getAnimationState("Walk");
-    robotAnimation->setEnabled(true);
-    robotAnimation->setLoop(true);
+    Signature EntityManager::getSignature(Entity entity) {
+        assert(entity < scene::MAX_ENTITIES && "Cannot get Signature. Entity out of range.");
+
+        return m_signatures[entity];
+    }
+
+    void EntityManager::makeRobot(Ogre::Vector3 &pos) {
+        Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
+        Ogre::SceneNode *robotNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        robotNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90));
+        robotNode->setPosition(pos.x, pos.y, pos.z);
+        robotNode->attachObject(robot);
+        //m_entities.push_back(robot->getName());
+        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");
+        robotAnimation->setEnabled(true);
+        robotAnimation->setLoop(true);
+    }
+
 }

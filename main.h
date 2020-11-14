@@ -44,7 +44,7 @@ private:
     Ogre::Camera* m_camera;
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
-    EntityManager* m_entityManager;
+    ecs::EntityManager* m_entityManager;
 
     Grid* grid;
 };

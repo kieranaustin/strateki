@@ -29,6 +29,8 @@ message("OGRE library dirs " "${OGRE_LIBRARY_DIRS}")
 message("OGRE librareis " "${OGRE_LIBRARIES}")
 message("OGRE library " "${OGRE_LIBRARY}")
 
+add_subdirectory(test)
+
 add_library(Grid Grid.cpp Grid.h)
 add_library(CameraControl CameraControl.cpp CameraControl.h)
 add_library(TerrainLoader TerrainLoader.cpp TerrainLoader.h)

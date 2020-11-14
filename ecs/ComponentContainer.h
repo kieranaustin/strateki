@@ -15,8 +15,7 @@ namespace ecs
     template <typename T>
     class ComponentContainer
     {
-        ComponentContainer() {};
-
+    public:
         void addComponent(ecs::Entity entity, T component)
         {
             assert(entity < ecs::MAX_ENTITIES && "Cannot add Component. Entity id out of range.");
@@ -62,7 +61,6 @@ namespace ecs
 
             return m_components[index];
         }
-
 
     private:
         // TODO: why not use std::map instead?

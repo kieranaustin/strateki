@@ -34,7 +34,14 @@ add_subdirectory(test)
 add_library(Grid Grid.cpp Grid.h)
 add_library(CameraControl CameraControl.cpp CameraControl.h)
 add_library(TerrainLoader TerrainLoader.cpp TerrainLoader.h)
-add_library(ecs ecs/Definitions.h ecs/EntityManager.cpp ecs/EntityManager.h ecs/ComponentContainer.h ecs/ComponentManager.h)
+add_library(ecs
+    ecs/Definitions.h
+    ecs/EntityManager.cpp ecs/EntityManager.h
+    ecs/ComponentContainer.h ecs/ComponentManager.h
+    ecs/System.h ecs/SystemManager.h
+    ecs/Register.h
+)
+
 #set_target_properties(CameraControl PROPERTIES LINKER_LANGUAGE CXX)
 #set(SOURCES "/home/kieran/projects/ogre/OgreMain")
 #add_library(ogre_for_ide EXCLUDE_FROM_ALL ${SOURCES})

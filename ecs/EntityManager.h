@@ -10,13 +10,10 @@
 
 namespace ecs {
 
-    class EntityManager : public Ogre::Singleton<EntityManager> {
+    class EntityManager
+    {
     public:
-        EntityManager(Ogre::SceneManager *sceneManager);
-
-        static EntityManager *getSingletonPtr(void);
-
-        static EntityManager &getSingleton(void);
+        EntityManager();
 
         Entity createEntity();
 
@@ -27,8 +24,6 @@ namespace ecs {
         void setSignature(Entity entity, Signature signature);
 
         Signature getSignature(Entity entity);
-
-        void makeRobot(Ogre::Vector3 &pos);
 
         //std::queue<scene::Entity>* getEntities() {return &m_entityPool;}; TODO: return only currently living entities
 

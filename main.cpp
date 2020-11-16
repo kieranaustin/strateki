@@ -5,6 +5,7 @@
 #include <OgreRenderWindow.h>
 #include <OgreBitesConfigDialog.h>
 #include "main.h"
+#include "ecs/Register.h"
 
 //#define PAGING
 
@@ -12,6 +13,8 @@
 #define TERRAIN_SIZE 513
 
 using namespace Ogre;
+
+ecs::Register aRegister;
 
 scene::scene() : OgreBites::ApplicationContext("first try")
 {
@@ -61,6 +64,7 @@ void scene::setup(void)
 
     Root* root = getRoot();
 
+    aRegister.init();
 
     //ConfigDialog* configDialog = OgreBites::getNativeConfigDialog();
     //root->showConfigDialog(configDialog);
@@ -106,10 +110,12 @@ void scene::setup(void)
     m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
+    /*
     m_entityManager = new ecs::EntityManager(m_sceneManager);
     Ogre::Vector3 pos(0,0, 0);
     pos.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(pos.x, pos.y, 0.0);
     m_entityManager->makeRobot(pos);
+     */
 
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);

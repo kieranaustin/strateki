@@ -5,22 +5,11 @@
 #include "EntityManager.h"
 #include "Definitions.h"
 
-template<> ecs::EntityManager *Ogre::Singleton<ecs::EntityManager>::msSingleton = 0;
-
-ecs::EntityManager *ecs::EntityManager::getSingletonPtr(void) {
-    return msSingleton;
-}
-
-ecs::EntityManager &ecs::EntityManager::getSingleton(void) {
-    assert(msSingleton);
-    return (*msSingleton);
-}
-
 namespace ecs {
 
 
-    EntityManager::EntityManager(Ogre::SceneManager *sceneManager)
-            : m_sceneManager(sceneManager) {
+    EntityManager::EntityManager()
+    {
         for (Entity e = 0; e < MAX_ENTITIES; ++e) {
             m_entityPool.push(e);
         }
@@ -66,6 +55,7 @@ namespace ecs {
         return m_signatures[entity];
     }
 
+    /*
     void EntityManager::makeRobot(Ogre::Vector3 &pos) {
         Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
         Ogre::SceneNode *robotNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
@@ -77,5 +67,6 @@ namespace ecs {
         robotAnimation->setEnabled(true);
         robotAnimation->setLoop(true);
     }
+     */
 
 }

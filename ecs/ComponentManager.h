@@ -34,7 +34,7 @@ namespace ecs
 
             assert(m_componentsTypes.find(typeName) != m_componentsTypes.end() && "Component Type not registered.");
 
-            return m_numComponentTypes[typeName];
+            return m_componentsTypes[typeName];
         }
 
         template <typename T>

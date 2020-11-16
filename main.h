@@ -10,6 +10,8 @@
 #include "CameraControl.h"
 #include "TerrainLoader.h"
 #include "ecs/EntityManager.h"
+#include "ecs/systems/MeshSystem.h"
+#include "ecs/systems/MovementSystem.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -45,6 +47,8 @@ private:
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
     ecs::EntityManager* m_entityManager;
+    std::shared_ptr<ecs::MeshSystem> meshSystem;
+    std::shared_ptr<ecs::MovementSystem> movementSystem;
 
     Grid* grid;
 };

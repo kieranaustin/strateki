@@ -25,7 +25,7 @@ namespace ecs
         // entity related functions
         ecs::Entity createEntity()
         {
-            m_entityManager->createEntity();
+            return m_entityManager->createEntity();
         }
 
         void destroyEntity(ecs::Entity entity)

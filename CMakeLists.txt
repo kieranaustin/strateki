@@ -40,6 +40,8 @@ add_library(ecs
     ecs/ComponentContainer.h ecs/ComponentManager.h
     ecs/System.h ecs/SystemManager.h
     ecs/Register.h
+    ecs/components/Components.h
+    ecs/systems/MovementSystem.h ecs/systems/MeshSystem.h
 )
 
 #set_target_properties(CameraControl PROPERTIES LINKER_LANGUAGE CXX)

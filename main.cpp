@@ -6,6 +6,8 @@
 #include <OgreBitesConfigDialog.h>
 #include "main.h"
 #include "ecs/Register.h"
+#include "ecs/components/Components.h"
+#include "ecs/systems/MeshSystem.h"
 
 //#define PAGING
 
@@ -54,6 +56,9 @@ bool scene::frameRenderingQueued(const Ogre::FrameEvent& evt)
         m_sceneManager->getEntity(entity)->getAnimationState("Walk")->addTime(evt.timeSinceLastFrame);
     }
      */
+
+    meshSystem->update(evt);
+    movementSystem->update(evt);
 
     return true;
 }
@@ -110,12 +115,30 @@ void scene::setup(void)
     m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
-    /*
-    m_entityManager = new ecs::EntityManager(m_sceneManager);
-    Ogre::Vector3 pos(0,0, 0);
-    pos.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(pos.x, pos.y, 0.0);
-    m_entityManager->makeRobot(pos);
-     */
+    aRegister.init();
+
+    aRegister.registerComponentType<ecs::Transform>();
+    aRegister.registerComponentType<ecs::Movement>();
+    aRegister.registerComponentType<ecs::Gravity>();
+    aRegister.registerComponentType<ecs::Mesh>();
+
+    movementSystem = aRegister.registerSystem<ecs::MovementSystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Transform>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::MovementSystem>(signature);
+    }
+    movementSystem->init(); // does nothing so far
+
+    meshSystem = aRegister.registerSystem<ecs::MeshSystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Mesh>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::MeshSystem>(signature);
+    }
+    meshSystem->init(m_sceneManager);
 
     // and tell it to render into the main window
     getRenderWindow()->addViewport(m_camera);

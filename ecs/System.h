@@ -24,7 +24,7 @@ namespace ecs
             m_entities.erase(entity);
         }
 
-    private:
+    protected:
         std::set<ecs::Entity> m_entities;
     };
 }

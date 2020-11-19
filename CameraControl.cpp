@@ -20,25 +20,25 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
     camLightFront->setType(Ogre::Light::LT_SPOTLIGHT);
     Ogre::Vector3 lightdir(0, 0, -1);
     lightdir.normalise();
-    camLightFront->setDirection(lightdir);
     camLightFront->setVisible(true);
     camLightFront->setDiffuseColour(Ogre::ColourValue::White);
     camLightFront->setSpecularColour(Ogre::ColourValue::White);
     Ogre::SceneNode *lightNodeFront = m_cameraNode->createChildSceneNode();
     lightNodeFront->setPosition(0, 0, 0);
+    lightNodeFront->setDirection(lightdir);
     lightNodeFront->attachObject(camLightFront);
 
     Ogre::Light* camLightBack = m_sceneManager->createLight("CameraLightBack");
     camLightBack->setType(Ogre::Light::LT_SPOTLIGHT);
     lightdir = Ogre::Vector3(0,-1,0);
     lightdir.normalise();
-    camLightBack->setDirection(lightdir);
     camLightBack->setVisible(true);
     camLightBack->setDiffuseColour(Ogre::ColourValue::White);
     camLightBack->setSpecularColour(Ogre::ColourValue::White);
     camLightBack->setPowerScale(Ogre::Real(10000));
     Ogre::SceneNode *lightNodeBack = m_cameraRigNode->createChildSceneNode();
     lightNodeBack->setPosition(0, 100, 0);
+    lightNodeBack->setDirection(lightdir);
     lightNodeBack->attachObject(camLightBack);
 }
 
@@ -57,14 +57,13 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre
 
     Ogre::Light* light = m_sceneManager->createLight("CameraLight");
     light->setType(Ogre::Light::LT_SPOTLIGHT);
-    light->setDirection(Ogre::Vector3(0,1,0));
     light->setVisible(true);
     light->setDiffuseColour(Ogre::ColourValue::Red);
     light->setSpecularColour(Ogre::ColourValue::Red);
     Ogre::SceneNode* lightNode = m_cameraNode->createChildSceneNode();
     lightNode->setPosition(0, 0, 0);
+    lightNode->setDirection(Ogre::Vector3(0,1,0));
     lightNode->attachObject(light);
-    //m_cameraRigNode->attachObject(light);
 
     m_TerrainWorldSize = m_TerrainGroup->getTerrainWorldSize();
     m_TerrainSize = m_TerrainGroup->getTerrainSize();
@@ -153,7 +152,8 @@ void CameraControl::showCoordinateAxes(bool show)
     m_coordAxes->setVisible(show);
 }
 
-bool CameraControl::mousePressed(const OgreBites::MouseButtonEvent &evt) {
+bool CameraControl::mousePressed(const OgreBites::MouseButtonEvent &evt)
+{
     if(evt.button == OgreBites::BUTTON_LEFT)
     {
         m_bRotateCamera = true;

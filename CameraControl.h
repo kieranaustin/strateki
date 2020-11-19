@@ -28,6 +28,8 @@ public:
     void attachLight(Ogre::Light* light);
     void attachTerrainGroup(Ogre::TerrainGroup* terrainGroup);
 
+    Ogre::Camera * getCamera() { return m_camera; }
+
 
 private:
     void handleCollisionWithTerrain();

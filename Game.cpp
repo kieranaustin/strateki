@@ -7,15 +7,13 @@
 #include "Game.h"
 #include "ecs/Register.h"
 #include "ecs/components/Components.h"
-#include "ecs/systems/MeshSystem.h"
+#include "ecs/systems/RenderSystem.h"
 
 //#define PAGING
 //#define DEBUG
 
 #define TERRAIN_WORLD_SIZE 8000.0f
 #define TERRAIN_SIZE 513
-
-using namespace Ogre;
 
 ecs::Register aRegister;
 
@@ -27,8 +25,9 @@ Game::Game() : OgreBites::ApplicationContext("first try")
 Game::~Game()
 {
     delete m_terrainLoader;
-    delete m_cameraControl;
     delete m_camera;
+    delete m_cameraControl;
+    delete m_entityFactory;
     delete m_sceneManager;
 }
 
@@ -83,7 +82,7 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
     {
         if (mouseMode == MouseMode::CAMERA)
         {
-            mouseMode = MouseMode ::SELECTION;
+            mouseMode = MouseMode::SELECTION;
         }
         else
         {
@@ -130,14 +129,16 @@ bool Game::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
+    const Ogre::Real dt = evt.timeSinceLastFrame;
+
+    movementSystem->update(dt);
+    renderSystem->update(dt);
+
     // mInputListeners comes from Base Class ApplicationContextBase
-    for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it) 
+    for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)
     {
         it->second->frameRendered(evt);
     }
-
-    meshSystem->update(evt);
-    movementSystem->update(evt);
 
     return true;
 }
@@ -146,45 +147,12 @@ void Game::setup(void)
 {
     OgreBites::ApplicationContext::setup();
 
-    Root* root = getRoot();
-
-    aRegister.init();
+    Ogre::Root* root = getRoot();
 
     //ConfigDialog* configDialog = OgreBites::getNativeConfigDialog();
     //root->showConfigDialog(configDialog);
 
     m_sceneManager = root->createSceneManager();
-
-    // register our scene with the RTSS
-    Ogre::RTShader::ShaderGenerator* shadergen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-    shadergen->addSceneManager(m_sceneManager);
-
-    // without light we would just get a black screen
-    //m_sceneManager->setAmbientLight(ColourValue(0.1f,0.1f,0.1f));
-    Ogre::Light* light = m_sceneManager->createLight("MainLight");
-    light->setType(Ogre::Light::LT_SPOTLIGHT);
-    light->setSpotlightRange(Ogre::Degree(30), Ogre::Degree(50));
-    light->setSpecularColour(ColourValue::Blue);
-    light->setDiffuseColour(ColourValue::Blue);
-    light->setPowerScale(10000);
-    Ogre::SceneNode* lightNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    lightNode->setPosition(0, 0, 500);
-    lightNode->setDirection(0,0,-1);
-    lightNode->attachObject(light);
-
-    // create the camera and attach to camera controller
-    m_camera = m_sceneManager->createCamera("mainCamera");
-    m_camera->setNearClipDistance(0.1); // specific to this sample
-    m_camera->setFarClipDistance(12000000.0f);
-    m_camera->setAutoAspectRatio(true);
-
-    m_cameraControl = new CameraControl(m_camera, m_sceneManager);
-
-    m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
-    m_terrainLoader->loadTerrain();
-
-    m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
-    m_cameraControl->showCoordinateAxes(true);
 
     aRegister.init();
 
@@ -192,6 +160,15 @@ void Game::setup(void)
     aRegister.registerComponentType<ecs::Movement>();
     aRegister.registerComponentType<ecs::Gravity>();
     aRegister.registerComponentType<ecs::Mesh>();
+
+    renderSystem = aRegister.registerSystem<ecs::RenderSystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Mesh>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::RenderSystem>(signature);
+    }
+    renderSystem->init(m_sceneManager);
 
     movementSystem = aRegister.registerSystem<ecs::MovementSystem>();
     {
@@ -202,19 +179,22 @@ void Game::setup(void)
     }
     movementSystem->init(); // does nothing so far
 
-    meshSystem = aRegister.registerSystem<ecs::MeshSystem>();
-    {
-        ecs::Signature signature{};
-        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Mesh>();
-        signature.set(componentType, true);
-        aRegister.setSystemSignature<ecs::MeshSystem>(signature);
-    }
-    meshSystem->init(m_sceneManager);
+    m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
+    m_terrainLoader->loadTerrain();
 
-    // and tell it to render into the main window
+    m_camera = m_sceneManager->createCamera("mainCamera");
+    m_cameraControl = new CameraControl(m_camera, m_sceneManager);
+    m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
+    m_cameraControl->showCoordinateAxes(true);
+
+    m_entityFactory = new EntityFactory(&aRegister, m_sceneManager);
+
     getRenderWindow()->addViewport(m_camera);
 
     addInputListener(this);
+
+    Ogre::Vector3 pos{0,0,83};
+    m_entityFactory->makeRobot(pos);
 }
 
 

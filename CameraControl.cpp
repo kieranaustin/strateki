@@ -7,7 +7,13 @@
 
 CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
         : m_camera(cam)
-        , m_sceneManager(scnMgr) {
+        , m_sceneManager(scnMgr) 
+{
+    // set camera
+    m_camera->setNearClipDistance(0.1);
+    m_camera->setFarClipDistance(12000000.0f);
+    m_camera->setAutoAspectRatio(true);
+
     m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
     m_cameraNode = m_cameraRigNode->createChildSceneNode();
     m_cameraRigNode->setPosition(0, 0, 0);

@@ -14,7 +14,7 @@ namespace ecs
     {
     public:
         virtual void init() {};
-        virtual void update(const Ogre::FrameEvent& evt) = 0;
+        virtual void update(const Ogre::Real & dt) = 0;
         void insertEntity(ecs::Entity entity)
         {
             m_entities.insert(entity);

@@ -33,17 +33,22 @@ add_library(ecs
     ecs/System.h ecs/SystemManager.h
     ecs/Register.h
     ecs/components/Components.h
-    ecs/systems/MovementSystem.h ecs/systems/MeshSystem.h
+    ecs/systems/MovementSystem.h ecs/systems/RenderSystem.h
+)
+add_library(ecsSystems
+    ecs/systems/MovementSystem.h
+    ecs/systems/RenderSystem.h
 )
 
 
-add_executable(scene main.cpp Game.cpp Game.h)
+add_executable(scene main.cpp Game.cpp Game.h EntityFactory.h)
 
 
 target_link_libraries(Grid OgreMain OgreBites)
 target_link_libraries(CameraControl OgreBites OgreTerrain)
 target_link_libraries(TerrainLoader OgreMain OgreTerrain)
 target_link_libraries(ecs OgreMain)
+target_link_libraries(ecsSystems ecs)
 target_link_libraries(scene 
     OgreBites OgreRTShaderSystem OgreTerrain
     Grid CameraControl TerrainLoader ecs

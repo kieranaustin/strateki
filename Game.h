@@ -8,8 +8,9 @@
 #include "CameraControl.h"
 #include "TerrainLoader.h"
 #include "ecs/EntityManager.h"
-#include "ecs/systems/MeshSystem.h"
+#include "ecs/systems/RenderSystem.h"
 #include "ecs/systems/MovementSystem.h"
+#include "EntityFactory.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -48,13 +49,12 @@ private:
 
     MouseMode mouseMode = MouseMode::CAMERA;
 
-
     Ogre::Camera* m_camera;
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
-    ecs::EntityManager* m_entityManager;
-    std::shared_ptr<ecs::MeshSystem> meshSystem;
+    std::shared_ptr<ecs::RenderSystem> renderSystem;
     std::shared_ptr<ecs::MovementSystem> movementSystem;
+    EntityFactory * m_entityFactory;
 };
 
 #endif //SCENE_MAIN_H

@@ -17,7 +17,7 @@ namespace ecs
     class MovementSystem : public ecs::System
     {
     public:
-        void update(const Ogre::FrameEvent &evt) override
+        void update(const Ogre::Real & dt) override
         {
             for (auto &entity : m_entities)
             {

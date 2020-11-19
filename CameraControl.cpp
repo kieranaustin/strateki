@@ -153,7 +153,8 @@ void CameraControl::showCoordinateAxes(bool show)
     m_coordAxes->setVisible(show);
 }
 
-bool CameraControl::mousePressed(const OgreBites::MouseButtonEvent &evt) {
+bool CameraControl::mousePressed(const OgreBites::MouseButtonEvent &evt)
+{
     if(evt.button == OgreBites::BUTTON_LEFT)
     {
         m_bRotateCamera = true;

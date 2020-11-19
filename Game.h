@@ -5,8 +5,6 @@
 #include <Bites/OgreApplicationContext.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
-#include <OgreCameraMan.h>
-#include "Grid.h"
 #include "CameraControl.h"
 #include "TerrainLoader.h"
 #include "ecs/EntityManager.h"
@@ -16,13 +14,19 @@
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
 
-class scene :
+enum MouseMode
+{
+    SELECTION,
+    CAMERA
+};
+
+class Game :
         public OgreBites::ApplicationContext,
         public OgreBites::InputListener
 {
 public:
-    scene();
-    ~scene();
+    Game();
+    ~Game();
 
     void setup(void);
 
@@ -32,16 +36,18 @@ public:
      */
     bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
     bool keyPressed(const OgreBites::KeyboardEvent& evt) override;
-    /*
-     * not needed right now.
-    bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
     bool mousePressed(const OgreBites::MouseButtonEvent& evt) override;
+    bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
     bool mouseReleased(const OgreBites::MouseButtonEvent& evt) override;
     bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
-     */
+
+    bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
 
 private:
     Ogre::SceneManager* m_sceneManager;
+
+    MouseMode mouseMode = MouseMode::CAMERA;
+
 
     Ogre::Camera* m_camera;
     CameraControl* m_cameraControl;
@@ -49,8 +55,6 @@ private:
     ecs::EntityManager* m_entityManager;
     std::shared_ptr<ecs::MeshSystem> meshSystem;
     std::shared_ptr<ecs::MovementSystem> movementSystem;
-
-    Grid* grid;
 };
 
 #endif //SCENE_MAIN_H

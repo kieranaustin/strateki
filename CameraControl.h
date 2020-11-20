@@ -38,8 +38,8 @@ private:
     Ogre::SceneManager* m_sceneManager = nullptr;
 
     Ogre::SceneNode* m_cameraRigNode = nullptr;
+    Ogre::SceneNode* m_cameraRigRotateNode = nullptr;
     Ogre::SceneNode* m_cameraNode = nullptr;
-    Ogre::SceneNode* m_coordAxesNode = nullptr;
 
     Ogre::TerrainGroup* m_TerrainGroup = nullptr;
 
@@ -51,7 +51,9 @@ private:
     Ogre::Real m_TerrainWorldSize = 1/0.0f;
     uint16_t m_TerrainSize = 0;
 
-    Ogre::Entity* m_coordAxes = nullptr;
+    Ogre::ManualObject * m_coordAxes = nullptr;
+    Ogre::ManualObject * m_coordAxesRotateNode = nullptr;
+
     Ogre::AnimationState* m_coordAxesAnimState = nullptr;
 };
 

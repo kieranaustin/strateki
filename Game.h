@@ -54,10 +54,10 @@ private:
     Ogre::Camera* m_camera;
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
-    std::shared_ptr<ecs::RenderSystem> renderSystem;
-    std::shared_ptr<ecs::MovementSystem> movementSystem;
-    std::shared_ptr<ecs::TerrainCollisionSystem> terrainCollisionSystem;
-    std::shared_ptr<ecs::GravitySystem> gravitySystem;
+    std::shared_ptr<ecs::RenderSystem> m_renderSystem;
+    std::shared_ptr<ecs::MovementSystem> m_movementSystem;
+    std::shared_ptr<ecs::TerrainCollisionSystem> m_terrainCollisionSystem;
+    std::shared_ptr<ecs::GravitySystem> m_gravitySystem;
     EntityFactory * m_entityFactory;
 };
 

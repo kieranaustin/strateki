@@ -2,7 +2,6 @@
 #include <Ogre.h>
 #include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <Bites/OgreApplicationContext.h>
-#include <OgreRenderWindow.h>
 #include <OgreBitesConfigDialog.h>
 #include "Game.h"
 #include "ecs/Register.h"
@@ -135,10 +134,10 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
     const Ogre::Real dt = evt.timeSinceLastFrame;
 
-    gravitySystem->update(dt);
-    movementSystem->update(dt);
-    terrainCollisionSystem->update(dt);
-    renderSystem->update(dt);
+    m_gravitySystem->update(dt);
+    m_movementSystem->update(dt);
+    m_terrainCollisionSystem->update(dt);
+    m_renderSystem->update(dt);
 
     // mInputListeners comes from Base Class ApplicationContextBase
     for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)
@@ -168,16 +167,16 @@ void Game::setup(void)
     aRegister.registerComponentType<ecs::TerrainCollision>();
     aRegister.registerComponentType<ecs::Mesh>();
 
-    renderSystem = aRegister.registerSystem<ecs::RenderSystem>();
+    m_renderSystem = aRegister.registerSystem<ecs::RenderSystem>();
     {
         ecs::Signature signature{};
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::Mesh>();
         signature.set(componentType, true);
         aRegister.setSystemSignature<ecs::RenderSystem>(signature);
     }
-    renderSystem->init(m_sceneManager);
+    m_renderSystem->init(m_sceneManager);
 
-    movementSystem = aRegister.registerSystem<ecs::MovementSystem>();
+    m_movementSystem = aRegister.registerSystem<ecs::MovementSystem>();
     {
         ecs::Signature signature{};
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::Transform>();
@@ -186,9 +185,9 @@ void Game::setup(void)
         signature.set(componentType, true);
         aRegister.setSystemSignature<ecs::MovementSystem>(signature);
     }
-    movementSystem->init(); // does nothing so far
+    m_movementSystem->init(); // does nothing so far
 
-    terrainCollisionSystem = aRegister.registerSystem<ecs::TerrainCollisionSystem>();
+    m_terrainCollisionSystem = aRegister.registerSystem<ecs::TerrainCollisionSystem>();
     {
         ecs::Signature signature{};
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::TerrainCollision>();
@@ -198,7 +197,7 @@ void Game::setup(void)
         aRegister.setSystemSignature<ecs::TerrainCollisionSystem>(signature);
     }
 
-    gravitySystem = aRegister.registerSystem<ecs::GravitySystem>();
+    m_gravitySystem = aRegister.registerSystem<ecs::GravitySystem>();
     {
         ecs::Signature signature{};
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::Gravity>();
@@ -211,12 +210,11 @@ void Game::setup(void)
     m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
     m_terrainLoader->loadTerrain();
 
-    terrainCollisionSystem->init(m_terrainLoader->getTerrainGroup());
-    gravitySystem->init(m_terrainLoader->getTerrainGroup());
+    m_terrainCollisionSystem->init(m_terrainLoader->getTerrainGroup());
+    m_gravitySystem->init(m_terrainLoader->getTerrainGroup());
 
     m_camera = m_sceneManager->createCamera("mainCamera");
-    m_cameraControl = new CameraControl(m_camera, m_sceneManager);
-    m_cameraControl->attachTerrainGroup(m_terrainLoader->getTerrainGroup());
+    m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
     m_entityFactory = new EntityFactory(&aRegister, m_sceneManager);

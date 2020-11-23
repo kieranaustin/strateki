@@ -9,6 +9,28 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
         : m_camera(cam)
         , m_sceneManager(scnMgr) 
 {
+    setup();
+}
+
+CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp)
+    : m_camera(cam)
+    , m_sceneManager(scnMgr)
+{
+    setup();
+    attachTerrainGroup(trnGrp);
+}
+
+CameraControl::~CameraControl()
+{
+    delete m_cameraNode;
+    delete m_cameraRigRotateNode;
+    delete m_cameraRigNode;
+    delete m_coordAxes;
+    delete m_coordAxesRotate;
+}
+
+void CameraControl::setup()
+{
     // set camera
     m_camera->setNearClipDistance(0.1);
     m_camera->setFarClipDistance(12000000.0f);
@@ -21,7 +43,6 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
 
     m_cameraNode = m_cameraRigRotateNode->createChildSceneNode(Ogre::Vector3(0, -60, 0));
     m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
-    //m_cameraNode->setPosition(0, -60, 0);
     m_cameraNode->attachObject(m_camera);
 
     Ogre::Light* camLightFront = m_sceneManager->createLight("CameraLightFront");
@@ -48,55 +69,6 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr)
     lightNodeBack->setPosition(0, 100, 0);
     lightNodeBack->setDirection(lightdir);
     lightNodeBack->attachObject(camLightBack);
-}
-
-CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp)
-    : m_camera(cam)
-    , m_sceneManager(scnMgr)
-    , m_TerrainGroup(trnGrp)
-{
-    m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-    m_cameraNode = m_cameraRigNode->createChildSceneNode();
-    m_cameraRigNode->setPosition(0, 0, 0);
-    m_cameraRigNode->pitch(Ogre::Radian(-M_PI/4.0f));
-    m_cameraNode->setPosition(0, -600, 0);
-    m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
-    m_cameraNode->attachObject(m_camera);
-
-    Ogre::Light* light = m_sceneManager->createLight("CameraLight");
-    light->setType(Ogre::Light::LT_SPOTLIGHT);
-    light->setVisible(true);
-    light->setDiffuseColour(Ogre::ColourValue::Red);
-    light->setSpecularColour(Ogre::ColourValue::Red);
-    Ogre::SceneNode* lightNode = m_cameraNode->createChildSceneNode();
-    lightNode->setPosition(0, 0, 0);
-    lightNode->setDirection(Ogre::Vector3(0,1,0));
-    lightNode->attachObject(light);
-
-    m_TerrainWorldSize = m_TerrainGroup->getTerrainWorldSize();
-    m_TerrainSize = m_TerrainGroup->getTerrainSize();
-
-    m_cameraRigNode->setPosition(0,0,m_TerrainGroup->getHeightAtWorldPosition(0,0,0));
-}
-
-CameraControl::~CameraControl()
-{
-    delete m_cameraNode;
-    delete m_cameraRigRotateNode;
-    delete m_cameraRigNode;
-    delete m_coordAxes;
-    delete m_coordAxesRotate;
-    delete m_coordAxesAnimState;
-}
-
-bool CameraControl::frameStarted(const Ogre::FrameEvent &evt)
-{
-    if (m_coordAxesAnimState == nullptr)
-    {
-        return true;
-    }
-    m_coordAxesAnimState->addTime(evt.timeSinceLastFrame);
-    return true;
 }
 
 void CameraControl::attachTerrainGroup(Ogre::TerrainGroup *terrainGroup)

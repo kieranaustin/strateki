@@ -17,7 +17,7 @@ public:
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp);
     ~CameraControl();
 
-    bool frameStarted(const Ogre::FrameEvent& evt);
+    void setup();
 
     bool mouseMoved(const OgreBites::MouseMotionEvent& evt);
     bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt);
@@ -55,8 +55,6 @@ private:
 
     Ogre::ManualObject * m_coordAxes = nullptr;
     Ogre::ManualObject * m_coordAxesRotate = nullptr;
-
-    Ogre::AnimationState* m_coordAxesAnimState = nullptr;
 };
 
 #endif //SCENE_CAMERACONTROL_H

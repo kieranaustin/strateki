@@ -24,6 +24,8 @@ public:
     bool mousePressed(const OgreBites::MouseButtonEvent& evt);
     bool mouseReleased(const OgreBites::MouseButtonEvent& evt);
 
+    void makeCoordinateAxes();
+    void makeCoordinateAxesRotate();
     void showCoordinateAxes(bool show);
     void attachLight(Ogre::Light* light);
     void attachTerrainGroup(Ogre::TerrainGroup* terrainGroup);
@@ -52,7 +54,7 @@ private:
     uint16_t m_TerrainSize = 0;
 
     Ogre::ManualObject * m_coordAxes = nullptr;
-    Ogre::ManualObject * m_coordAxesRotateNode = nullptr;
+    Ogre::ManualObject * m_coordAxesRotate = nullptr;
 
     Ogre::AnimationState* m_coordAxesAnimState = nullptr;
 };

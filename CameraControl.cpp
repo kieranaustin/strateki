@@ -85,7 +85,7 @@ CameraControl::~CameraControl()
     delete m_cameraRigRotateNode;
     delete m_cameraRigNode;
     delete m_coordAxes;
-    delete m_coordAxesRotateNode;
+    delete m_coordAxesRotate;
     delete m_coordAxesAnimState;
 }
 
@@ -116,82 +116,121 @@ void CameraControl::attachLight(Ogre::Light *light)
 
 void CameraControl::showCoordinateAxes(bool show)
 {
-    if(show)
+    if(m_coordAxes == nullptr)
     {
-        if(m_coordAxes == nullptr)
-        {
-            /*
-            m_coordAxesNode = m_cameraRigNode->createChildSceneNode();
-            //m_coordAxes = m_sceneManager->createEntity("Sinbad.mesh");
-            //m_coordAxes = m_sceneManager->createEntity("Cube.mesh");
-            //m_coordAxes = m_sceneManager->createEntity("MyCubee.mesh");
-            //m_coordAxes = m_sceneManager->createEntity("lighter.mesh");
-            m_coordAxes = m_sceneManager->createEntity("Wolf1_Material__wolf_col_tga_0.mesh");
-            Ogre::Entity* lighter = m_sceneManager->createEntity("lighter.mesh");
-            Ogre::Entity* lighter2 = m_sceneManager->createEntity("lighter.mesh");
-            std::cout << "wolf name = " << m_coordAxes->getName() << std::endl;
-            std::cout << "lighter name = " << lighter->getName() << std::endl;
-            std::cout << "lighter2 name = " << lighter2->getName() << std::endl;
-            //m_coordAxes = m_sceneManager->createEntity("robot.mesh");
-            m_coordAxesNode->attachObject(m_coordAxes);
-            m_coordAxesNode->rotate(Ogre::Vector3(0,0,1), Ogre::Degree(90), Ogre::Node::TS_PARENT);
-            //m_coordAxesNode->rotate(Ogre::Vector3(0,1,0), Ogre::Degree(90), Ogre::Node::TS_PARENT);
-            //m_coordAxesNode->rotate(Ogre::Vector3(-1,0,0), Ogre::Degree(90), Ogre::Node::TS_PARENT);
-            Ogre::AnimationStateSet* animSet = m_coordAxes->getAllAnimationStates();
-            std::cout << "coordAxes Animation States: " << std::endl;
-            for (auto it = animSet->getAnimationStateIterator().begin(); it != animSet->getAnimationStateIterator().end(); it++)
-            {
-                std::cout << it->first << std::endl;
-            }
-
-            //m_coordAxesAnimState = m_coordAxes->getAnimationState("Walk");
-            //m_coordAxesAnimState = m_coordAxes->getAnimationState("01_Run_Armature_0");
-            //m_coordAxesAnimState = m_coordAxes->getAnimationState("02_walk_Armature_0");
-            //m_coordAxesAnimState = m_coordAxes->getAnimationState("03_creep_Armature_0");
-            m_coordAxesAnimState = m_coordAxes->getAnimationState("04_Idle_Armature_0");
-            //m_coordAxesAnimState = m_coordAxes->getAnimationState("05_site_Armature_0");
-            m_coordAxesAnimState->setLoop(true);
-            m_coordAxesAnimState->setEnabled(true);
-            return;
-             */
-
-            //m_coordAxesNode = m_cameraRigNode->createChildSceneNode();
-            m_coordAxes = m_sceneManager->createManualObject("coordAxes");
-            // TODO: set colours red, green, blue for each axis
-            m_coordAxes->begin("Tile/Red", Ogre::RenderOperation::OT_LINE_LIST, "Map");
-                m_coordAxes->position(-50, 0, 0);
-                m_coordAxes->position(+50, 0, 0);
-                m_coordAxes->position(0, -50, 0);
-                m_coordAxes->position(0, +50, 0);
-                m_coordAxes->position(0, 0, -50);
-                m_coordAxes->position(0, 0, +50);
-            m_coordAxes->end();
-            m_cameraRigNode->attachObject(m_coordAxes);
-
-            m_coordAxesRotateNode = m_sceneManager->createManualObject("coordAxesRotateNode");
-            m_coordAxesRotateNode->begin("Tile/Blue", Ogre::RenderOperation::OT_LINE_LIST, "Map");
-                m_coordAxesRotateNode->position(-50, 0, 0);
-                m_coordAxesRotateNode->position(+50, 0, 0);
-                m_coordAxesRotateNode->position(0, -50, 0);
-                m_coordAxesRotateNode->position(0, +50, 0);
-                m_coordAxesRotateNode->position(0, 0, -50);
-                m_coordAxesRotateNode->position(0, 0, +50);
-            m_coordAxesRotateNode->end();
-            // TODO: make this material translucent
-            //Ogre::MaterialPtr _mat = static_cast<Ogre::MaterialPtr> (Ogre::MaterialManager::getSingleton().getByName("Tile/Blue"));
-            //_mat->getTechnique(0)->getPass(0)->setDiffuse(0.616687,0.90461,0.5,0.5);
-            //m_coordAxesRotateNode->setMaterial(0, _mat);
-            m_cameraRigRotateNode->attachObject(m_coordAxesRotateNode);
-        }
+        makeCoordinateAxes();
     }
-    else
+    if (m_coordAxesRotate == nullptr)
     {
-        if(m_coordAxes == nullptr)
-        {
-            return;
-        }
+        makeCoordinateAxesRotate();
     }
+
     m_coordAxes->setVisible(show);
+    m_coordAxesRotate->setVisible(show);
+}
+
+void CameraControl::makeCoordinateAxes()
+{
+    // draw coordinate axes
+    m_coordAxes = m_sceneManager->createManualObject("coordAxes");
+    float negative_half_width = 5.0;
+    float positive_half_width = 10.0;
+    float length = 150.0;
+    float height = 3;
+    m_coordAxes->begin("Tile/Red", Ogre::RenderOperation::OT_TRIANGLE_LIST, "Map");
+    {
+        // negative x axis
+        m_coordAxes->position(-length, 0, height);
+        m_coordAxes->position(0, -negative_half_width, height);
+        m_coordAxes->position(0, +negative_half_width, height);
+        // positive x axis
+        m_coordAxes->position(0, +positive_half_width, height);
+        m_coordAxes->position(0, -positive_half_width, height);
+        m_coordAxes->position(+length, 0, height);
+    }
+    m_coordAxes->end();
+    m_coordAxes->begin("Tile/Green", Ogre::RenderOperation::OT_TRIANGLE_LIST, "Map");
+    {
+        // negative y axis
+        m_coordAxes->position(0, -length, height);
+        m_coordAxes->position(+negative_half_width, 0, height);
+        m_coordAxes->position(-negative_half_width, 0, height);
+        // positive y axis
+        m_coordAxes->position(-positive_half_width, 0, height);
+        m_coordAxes->position(+positive_half_width, 0, height);
+        m_coordAxes->position(0, +length, height);
+    }
+    m_coordAxes->end();
+    m_coordAxes->begin("Tile/Blue", Ogre::RenderOperation::OT_TRIANGLE_LIST, "Map");
+    {
+        // normal at front
+        // negative z axis
+        m_coordAxes->position(0, 0, -length);
+        m_coordAxes->position(+negative_half_width, 0, 0);
+        m_coordAxes->position(-negative_half_width, 0, 0);
+        // positive z axis
+        m_coordAxes->position(-positive_half_width, 0, 0);
+        m_coordAxes->position(+positive_half_width, 0, 0);
+        m_coordAxes->position(0, 0, +length);
+        //
+        // normal at rear
+        // negative z axis
+        m_coordAxes->position(0, 0, -length);
+        m_coordAxes->position(-negative_half_width, 0, 0);
+        m_coordAxes->position(+negative_half_width, 0, 0);
+        // positive z axis
+        m_coordAxes->position(+positive_half_width, 0, 0);
+        m_coordAxes->position(-positive_half_width, 0, 0);
+        m_coordAxes->position(0, 0, +length);
+        //
+        // normal at side
+        // negative z axis
+        m_coordAxes->position(0, 0, -length);
+        m_coordAxes->position(0, -negative_half_width, 0);
+        m_coordAxes->position(0, +negative_half_width, 0);
+        // positive z axis
+        m_coordAxes->position(0, +positive_half_width, 0);
+        m_coordAxes->position(0, -positive_half_width, 0);
+        m_coordAxes->position(0, 0, +length);
+        //
+        // normal at opposite side
+        // negative z axis
+        m_coordAxes->position(0, 0, -length);
+        m_coordAxes->position(0, +negative_half_width, 0);
+        m_coordAxes->position(0, -negative_half_width, 0);
+        // positive z axis
+        m_coordAxes->position(0, -positive_half_width, 0);
+        m_coordAxes->position(0, +positive_half_width, 0);
+        m_coordAxes->position(0, 0, +length);
+    }
+    m_coordAxes->end();
+    m_cameraRigNode->attachObject(m_coordAxes);
+}
+
+void CameraControl::makeCoordinateAxesRotate()
+{
+    // draw coordinate axes that rotate with the view of the camera
+    m_coordAxesRotate = m_sceneManager->createManualObject("coordAxesRotate");
+    float length_rotate = 100;
+    m_coordAxesRotate->begin("Tile/Red", Ogre::RenderOperation::OT_LINE_LIST, "Map");
+    {
+        m_coordAxesRotate->position(-length_rotate, 0, 0);
+        m_coordAxesRotate->position(+length_rotate, 0, 0);
+    }
+    m_coordAxesRotate->end();
+    m_coordAxesRotate->begin("Tile/Green", Ogre::RenderOperation::OT_LINE_LIST, "Map");
+    {
+        m_coordAxesRotate->position(0, -length_rotate, 0);
+        m_coordAxesRotate->position(0, +length_rotate, 0);
+    }
+    m_coordAxesRotate->end();
+    m_coordAxesRotate->begin("Tile/Blue", Ogre::RenderOperation::OT_LINE_LIST, "Map");
+    {
+        m_coordAxesRotate->position(0, 0, -length_rotate);
+        m_coordAxesRotate->position(0, 0, +length_rotate);
+    }
+    m_coordAxesRotate->end();
+    m_cameraRigRotateNode->attachObject(m_coordAxesRotate);
 }
 
 bool CameraControl::mousePressed(const OgreBites::MouseButtonEvent &evt)

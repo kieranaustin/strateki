@@ -15,7 +15,10 @@ public:
         , m_sceneManager(sceneManager)
     {
     }
-    
+
+    //TODO: implement function for wolf
+    //m_coordAxes = m_sceneManager->createEntity("Wolf1_Material__wolf_col_tga_0.mesh");
+
     void makeRobot(Ogre::Vector3 &pos)
     {
         ecs::Entity ecsRobot = m_register->createEntity();
@@ -36,6 +39,7 @@ public:
         ecs::Movement movement;
         movement.velocity.x = 0.0;
         movement.acceleration.x = -1.0;
+        movement.acceleration.y = 1.0;
         m_register->addComponent<ecs::Movement>(ecsRobot, movement);
 
         ecs::Gravity gravity;
@@ -45,8 +49,8 @@ public:
         m_register->addComponent<ecs::TerrainCollision>(ecsRobot, terrainCollision);
 
         Ogre::SceneNode *robotNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-        robotNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_WORLD);
-        robotNode->rotate(Ogre::Vector3(0, 0, 1), Ogre::Degree(180), Ogre::Node::TS_WORLD);
+        robotNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        //robotNode->rotate(Ogre::Vector3(0, 0, 1), Ogre::Degree(180), Ogre::Node::TS_WORLD);
         robotNode->setPosition(pos.x, pos.y, pos.z);
         robotNode->attachObject(robot);
         Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");

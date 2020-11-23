@@ -135,7 +135,9 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
 {
     const Ogre::Real dt = evt.timeSinceLastFrame;
 
+    gravitySystem->update(dt);
     movementSystem->update(dt);
+    terrainCollisionSystem->update(dt);
     renderSystem->update(dt);
 
     // mInputListeners comes from Base Class ApplicationContextBase
@@ -163,6 +165,7 @@ void Game::setup(void)
     aRegister.registerComponentType<ecs::Transform>();
     aRegister.registerComponentType<ecs::Movement>();
     aRegister.registerComponentType<ecs::Gravity>();
+    aRegister.registerComponentType<ecs::TerrainCollision>();
     aRegister.registerComponentType<ecs::Mesh>();
 
     renderSystem = aRegister.registerSystem<ecs::RenderSystem>();
@@ -179,12 +182,37 @@ void Game::setup(void)
         ecs::Signature signature{};
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::Transform>();
         signature.set(componentType, true);
+        componentType = aRegister.getComponentType<ecs::Movement>();
+        signature.set(componentType, true);
         aRegister.setSystemSignature<ecs::MovementSystem>(signature);
     }
     movementSystem->init(); // does nothing so far
 
+    terrainCollisionSystem = aRegister.registerSystem<ecs::TerrainCollisionSystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::TerrainCollision>();
+        signature.set(componentType, true);
+        componentType = aRegister.getComponentType<ecs::Transform>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::TerrainCollisionSystem>(signature);
+    }
+
+    gravitySystem = aRegister.registerSystem<ecs::GravitySystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Gravity>();
+        signature.set(componentType, true);
+        componentType = aRegister.getComponentType<ecs::Transform>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::GravitySystem>(signature);
+    }
+
     m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
     m_terrainLoader->loadTerrain();
+
+    terrainCollisionSystem->init(m_terrainLoader->getTerrainGroup());
+    gravitySystem->init(m_terrainLoader->getTerrainGroup());
 
     m_camera = m_sceneManager->createCamera("mainCamera");
     m_cameraControl = new CameraControl(m_camera, m_sceneManager);
@@ -197,7 +225,8 @@ void Game::setup(void)
 
     addInputListener(this);
 
-    Ogre::Vector3 pos{0,0,83};
+    float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(0,0,0);
+    Ogre::Vector3 pos{0,0,height*3.0f};
     m_entityFactory->makeRobot(pos);
 }
 

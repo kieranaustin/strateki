@@ -7,27 +7,38 @@
 
 #include <Ogre.h>
 
-namespace ecs {
-    struct Transform {
-        Ogre::Vector3 position;
-        Ogre::Quaternion rotation;
-        Ogre::Vector3 scale;
+namespace ecs
+{
+    struct Transform
+     {
+        Ogre::Vector3 position{};
+        Ogre::Quaternion rotation{};
+        Ogre::Vector3 scale{};
     };
 
-    struct Movement {
-        Ogre::Vector3 velocity;
-        Ogre::Vector3 acceleration;
+    struct Movement
+    {
+        Ogre::Vector3 velocity{};
+        Ogre::Vector3 acceleration{};
     };
 
-    struct Gravity {
+    struct Gravity
+    {
         Ogre::Vector3 acceleration{0.0, 0.0, -9.81};
+        Ogre::Vector3 velocity{};
     };
 
-    struct Mesh {
-        Ogre::String ID;
-        Ogre::String file;
-        bool hasAnimation;
-        Ogre::String animationState;
+    struct TerrainCollision
+    {
+
+    };
+
+    struct Mesh
+    {
+        Ogre::String ID{};
+        Ogre::String file{};
+        bool hasAnimation{};
+        Ogre::String animationState{};
     };
 }
 

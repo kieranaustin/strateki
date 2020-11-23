@@ -33,11 +33,12 @@ add_library(ecs
     ecs/System.h ecs/SystemManager.h
     ecs/Register.h
     ecs/components/Components.h
-    ecs/systems/MovementSystem.h ecs/systems/RenderSystem.h
 )
 add_library(ecsSystems
     ecs/systems/MovementSystem.h
     ecs/systems/RenderSystem.h
+    ecs/systems/TerrainCollisionSystem.h
+    ecs/systems/GravitySystem.h
 )
 
 
@@ -51,7 +52,8 @@ target_link_libraries(ecs OgreMain)
 target_link_libraries(ecsSystems ecs)
 target_link_libraries(scene 
     OgreBites OgreRTShaderSystem OgreTerrain
-    Grid CameraControl TerrainLoader ecs
+    Grid CameraControl TerrainLoader
+    ecs ecsSystems
 )
 
 

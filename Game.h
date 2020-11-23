@@ -10,6 +10,8 @@
 #include "ecs/EntityManager.h"
 #include "ecs/systems/RenderSystem.h"
 #include "ecs/systems/MovementSystem.h"
+#include "ecs/systems/TerrainCollisionSystem.h"
+#include "ecs/systems/GravitySystem.h"
 #include "EntityFactory.h"
 
 #ifndef SCENE_MAIN_H
@@ -54,6 +56,8 @@ private:
     TerrainLoader* m_terrainLoader;
     std::shared_ptr<ecs::RenderSystem> renderSystem;
     std::shared_ptr<ecs::MovementSystem> movementSystem;
+    std::shared_ptr<ecs::TerrainCollisionSystem> terrainCollisionSystem;
+    std::shared_ptr<ecs::GravitySystem> gravitySystem;
     EntityFactory * m_entityFactory;
 };
 

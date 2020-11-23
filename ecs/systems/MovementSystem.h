@@ -21,7 +21,13 @@ namespace ecs
         {
             for (auto &entity : m_entities)
             {
-                aRegister.getComponent<ecs::Transform>(entity).position.x += 0.5;
+                Ogre::Vector3 & vel = aRegister.getComponent<ecs::Movement>(entity).velocity;
+                Ogre::Vector3 & acc = aRegister.getComponent<ecs::Movement>(entity).acceleration;
+
+                // semi-implicit Euler integration
+                // TODO: maybe use Verlet integration or other
+                vel += acc*dt;
+                aRegister.getComponent<ecs::Transform>(entity).position += vel * dt;
             }
         }
     };

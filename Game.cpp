@@ -94,6 +94,10 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
 
 bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
 {
+    if (evt.button == OgreBites::BUTTON_MIDDLE)
+    {
+        mouseMode = mouseMode == MouseMode::CAMERA ? MouseMode::SELECTION : MouseMode::CAMERA;
+    }
     if (mouseMode == MouseMode::CAMERA)
     {
         m_cameraControl->mousePressed(evt);

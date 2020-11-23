@@ -235,7 +235,7 @@ bool CameraControl::mouseMoved(const OgreBites::MouseMotionEvent &evt)
         if (m_TerrainGroup != nullptr)
         {
             float heightRig = m_TerrainGroup->getHeightAtWorldPosition(newPos.x, newPos.y, 0.0);
-            float heightCam = m_TerrainGroup->getHeightAtWorldPosition(camPos.x, camPos.y, 0.0) + 10.f;
+            float heightCam = m_TerrainGroup->getHeightAtWorldPosition(camPos.x, camPos.y, 0.0) + 0.f;
             if (heightRig < heightCam)
             {
                 newPos.z = heightCam;
@@ -266,7 +266,7 @@ bool CameraControl::mouseMoved(const OgreBites::MouseMotionEvent &evt)
         m_cameraRigNode->setPosition(newPos);
         //handleCollisionWithTerrain();
     }
-    else if (m_bRotateCamera)
+    if (m_bRotateCamera)
     {
         m_cameraRigRotateNode->roll(Ogre::Radian(evt.xrel/180.0f), Ogre::Node::TS_PARENT);
 
@@ -307,7 +307,7 @@ void CameraControl::handleCollisionWithTerrain()
     Ogre::Vector3 posCam = m_cameraNode->_getDerivedPosition();
     Ogre::Vector3 posRig = m_cameraRigNode->_getDerivedPosition();
 
-    float minHeightCam = m_TerrainGroup->getHeightAtWorldPosition(posCam.x, posCam.y, 0)+10.0f;
+    float minHeightCam = m_TerrainGroup->getHeightAtWorldPosition(posCam.x, posCam.y, 0)+0.0f;
     float minHeightRig = m_TerrainGroup->getHeightAtWorldPosition(posRig.x, posRig.y, 0);
 
     float diffCam = minHeightCam - posCam.z;

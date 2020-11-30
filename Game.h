@@ -12,6 +12,7 @@
 #include "ecs/systems/MovementSystem.h"
 #include "ecs/systems/TerrainCollisionSystem.h"
 #include "ecs/systems/GravitySystem.h"
+#include "ecs/systems/DestinationSystem.h"
 #include "EntityFactory.h"
 
 #ifndef SCENE_MAIN_H
@@ -45,6 +46,7 @@ public:
     bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
 
     bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
+    void simulateCommandSystem(const OgreBites::MouseButtonEvent& evt);
 
 private:
     Ogre::SceneManager* m_sceneManager;
@@ -58,7 +60,10 @@ private:
     std::shared_ptr<ecs::MovementSystem> m_movementSystem;
     std::shared_ptr<ecs::TerrainCollisionSystem> m_terrainCollisionSystem;
     std::shared_ptr<ecs::GravitySystem> m_gravitySystem;
+    std::shared_ptr<ecs::DestinationSystem> m_destinationSystem;
     EntityFactory * m_entityFactory;
+
+    ecs::Entity robot;
 };
 
 #endif //SCENE_MAIN_H

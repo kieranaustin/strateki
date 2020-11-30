@@ -71,6 +71,32 @@ bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
     return true;
 }
 
+void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
+{
+    // get destination on terrain from mouse click
+    Ogre::Real mousePosNormX = (float)evt.x / m_camera->getViewport()->getActualWidth();
+    Ogre::Real mousePosNormY = (float)evt.y / m_camera->getViewport()->getActualHeight();
+    Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
+    Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
+
+    if (not result.hit)
+        return;
+
+    // choose entity: for now just saved in member variable
+
+    // set DestinationComponent of entity
+    ecs::Destination & destination = aRegister.getComponent<ecs::Destination>(robot);
+    destination.destination = result.position;
+
+    // change MovementComponent: velocity to direction of destination
+    ecs::Movement & movement = aRegister.getComponent<ecs::Movement>(robot);
+    ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(robot);
+    movement.velocity = destination.destination - transform.position;
+    movement.velocity.z = 0.0f;
+    movement.velocity.normalise();
+    movement.velocity *= 50.0f;
+}
+
 bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
 {
     if (evt.keysym.sym == OgreBites::SDLK_ESCAPE)
@@ -110,7 +136,8 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
             return false;
 
         // deform Terrain for now
-        deformTerrain(evt);
+        //deformTerrain(evt);
+        simulateCommandSystem(evt);
     }
     return true;
 }
@@ -130,24 +157,6 @@ bool Game::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
     return m_cameraControl->mouseWheelRolled(evt);
 }
 
-bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
-{
-    const Ogre::Real dt = evt.timeSinceLastFrame;
-
-    m_gravitySystem->update(dt);
-    m_movementSystem->update(dt);
-    m_terrainCollisionSystem->update(dt);
-    m_renderSystem->update(dt);
-
-    // mInputListeners comes from Base Class ApplicationContextBase
-    for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)
-    {
-        it->second->frameRendered(evt);
-    }
-
-    return true;
-}
-
 void Game::setup(void)
 {
     OgreBites::ApplicationContext::setup();
@@ -163,6 +172,7 @@ void Game::setup(void)
 
     aRegister.registerComponentType<ecs::Transform>();
     aRegister.registerComponentType<ecs::Movement>();
+    aRegister.registerComponentType<ecs::Destination>();
     aRegister.registerComponentType<ecs::Gravity>();
     aRegister.registerComponentType<ecs::TerrainCollision>();
     aRegister.registerComponentType<ecs::Mesh>();
@@ -207,6 +217,16 @@ void Game::setup(void)
         aRegister.setSystemSignature<ecs::GravitySystem>(signature);
     }
 
+    m_destinationSystem = aRegister.registerSystem<ecs::DestinationSystem>();
+    {
+        ecs::Signature signature{};
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Destination>();
+        signature.set(componentType, true);
+        componentType = aRegister.getComponentType<ecs::Transform>();
+        signature.set(componentType, true);
+        aRegister.setSystemSignature<ecs::DestinationSystem>(signature);
+    }
+
     m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
     m_terrainLoader->loadTerrain();
 
@@ -225,7 +245,26 @@ void Game::setup(void)
 
     float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(0,0,0);
     Ogre::Vector3 pos{0,0,height*3.0f};
-    m_entityFactory->makeRobot(pos);
+    robot = m_entityFactory->makeRobot(pos);
+}
+
+bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
+{
+    const Ogre::Real dt = evt.timeSinceLastFrame;
+
+    m_gravitySystem->update(dt);
+    m_movementSystem->update(dt);
+    m_destinationSystem->update(dt);
+    m_terrainCollisionSystem->update(dt);
+    m_renderSystem->update(dt);
+
+    // mInputListeners comes from Base Class ApplicationContextBase
+    for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)
+    {
+        it->second->frameRendered(evt);
+    }
+
+    return true;
 }
 
 

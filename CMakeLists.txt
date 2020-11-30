@@ -39,7 +39,7 @@ add_library(ecsSystems
     ecs/systems/RenderSystem.h
     ecs/systems/TerrainCollisionSystem.h
     ecs/systems/GravitySystem.h
-)
+    ecs/systems/DestinationSystem.h)
 
 
 add_executable(scene main.cpp Game.cpp Game.h EntityFactory.h)

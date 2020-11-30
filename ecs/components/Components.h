@@ -22,6 +22,11 @@ namespace ecs
         Ogre::Vector3 acceleration{};
     };
 
+    struct Destination
+    {
+        Ogre::Vector3 destination{};
+    };
+
     struct Gravity
     {
         Ogre::Vector3 acceleration{0.0, 0.0, -9.81};

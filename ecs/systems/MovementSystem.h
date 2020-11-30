@@ -31,7 +31,10 @@ namespace ecs
                 vel += acc*dt;
                 pos += vel * dt;
 
-                rot = Ogre::Vector3::UNIT_X.getRotationTo(vel);
+                if (vel.length() > 0.0f)
+                {
+                    rot = Ogre::Vector3::UNIT_X.getRotationTo(vel);
+                }
             }
         }
     };

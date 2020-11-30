@@ -48,11 +48,15 @@ public:
         ecs::TerrainCollision terrainCollision;
         m_register->addComponent<ecs::TerrainCollision>(ecsRobot, terrainCollision);
 
-        Ogre::SceneNode *robotNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-        robotNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
-        //robotNode->rotate(Ogre::Vector3(0, 0, 1), Ogre::Degree(180), Ogre::Node::TS_WORLD);
-        robotNode->setPosition(pos.x, pos.y, pos.z);
-        robotNode->attachObject(robot);
+        Ogre::SceneNode * robotWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        // set entity to look at direction (1, 0, 0) at spawn time
+        //robotWorldNode->roll(Ogre::Radian(Ogre::Degree(180)));
+        robotWorldNode->setPosition(pos.x, pos.y, pos.z);
+
+        Ogre::SceneNode * robotLocalNode = robotWorldNode->createChildSceneNode();
+        robotLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        robotLocalNode->attachObject(robot);
+
         Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");
         robotAnimation->setEnabled(true);
         robotAnimation->setLoop(true);

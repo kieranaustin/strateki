@@ -39,6 +39,9 @@ namespace ecs
         Ogre::String file{};
         bool hasAnimation{};
         Ogre::String animationState{};
+        /* TODO: maybe save pointer to worldNode of object, such that it is easier to get the node to change position and rotation in space
+           and avoid having to sort out ...->getParentSceneNode()->getParentSceneNode()->... in RenderSystem
+        */
     };
 }
 

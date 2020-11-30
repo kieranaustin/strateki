@@ -47,7 +47,8 @@ namespace ecs
                 const ecs::Mesh & mesh = aRegister.getComponent<ecs::Mesh>(entity);
                 const ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(entity);
 
-                m_sceneManager->getEntity(mesh.ID)->getParentSceneNode()->setPosition(transform.position);
+                m_sceneManager->getEntity(mesh.ID)->getParentSceneNode()->getParentSceneNode()->setPosition(transform.position);
+                m_sceneManager->getEntity(mesh.ID)->getParentSceneNode()->getParentSceneNode()->setOrientation(transform.rotation);
 
                 if(mesh.hasAnimation)
                 {

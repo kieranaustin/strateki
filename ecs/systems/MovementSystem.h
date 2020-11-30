@@ -23,11 +23,15 @@ namespace ecs
             {
                 Ogre::Vector3 & vel = aRegister.getComponent<ecs::Movement>(entity).velocity;
                 Ogre::Vector3 & acc = aRegister.getComponent<ecs::Movement>(entity).acceleration;
+                Ogre::Quaternion & rot = aRegister.getComponent<ecs::Transform>(entity).rotation;
+                Ogre::Vector3 & pos = aRegister.getComponent<ecs::Transform>(entity).position;
 
                 // semi-implicit Euler integration
                 // TODO: maybe use Verlet integration or other
                 vel += acc*dt;
-                aRegister.getComponent<ecs::Transform>(entity).position += vel * dt;
+                pos += vel * dt;
+
+                rot = Ogre::Vector3::UNIT_X.getRotationTo(vel);
             }
         }
     };

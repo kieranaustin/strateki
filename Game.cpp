@@ -249,7 +249,7 @@ void Game::setup(void)
 
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(-TERRAIN_WORLD_SIZE/2.0f, TERRAIN_WORLD_SIZE/2.0f);
-    for(int i = 0; i<1000; i++)
+    for(int i = 0; i<500; i++)
     {
         float posX = distribution(generator);
         float posY = distribution(generator);

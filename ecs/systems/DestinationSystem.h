@@ -18,7 +18,7 @@ namespace ecs
     class DestinationSystem : public ecs::System
     {
     public:
-        void init () {}
+        void init () override {}
 
         void update(const Ogre::Real & dt) override
         {

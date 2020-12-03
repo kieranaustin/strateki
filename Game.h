@@ -32,7 +32,7 @@ public:
     Game();
     ~Game();
 
-    void setup(void);
+    void setup(void) override;
 
     /*
      * gets called in main loop from root before frameEnded and after frameStarted

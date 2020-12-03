@@ -21,21 +21,33 @@ public:
 
     ecs::Entity makeRobot(const Ogre::Vector3 &pos)
     {
-        ecs::Entity ecsRobot = m_register->createEntity();
+        // set up Ogre Entity
         Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
-        robot->setVisible(true);
-        robot->setDebugDisplayEnabled(true);
+
+        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");
+        robotAnimation->setEnabled(true);
+        robotAnimation->setLoop(true);
+
+        Ogre::SceneNode * robotWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        robotWorldNode->setPosition(pos.x, pos.y, pos.z);
+
+        Ogre::SceneNode * robotLocalNode = robotWorldNode->createChildSceneNode();
+        // rotate entity to be upright in z-direction
+        robotLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        robotLocalNode->attachObject(robot);
+
+        // set up ecs Entity
+        ecs::Entity ecsRobot = m_register->createEntity();
 
         ecs::Mesh ecsMesh;
         ecsMesh.ID = robot->getName();
-        ecsMesh.file = "robot.mesh";
+        ecsMesh.file = robot->getMesh()->getName();
         ecsMesh.hasAnimation = true;
-        ecsMesh.animationState = "Walk";
+        ecsMesh.animationState = robotAnimation->getAnimationName();
         m_register->addComponent<ecs::Mesh>(ecsRobot, ecsMesh);
-        m_register->getComponent<ecs::Mesh>(ecsRobot).ID;
 
         ecs::Transform transform{};
-        transform.position = pos;
+        transform.position = robotWorldNode->getPosition();
         m_register->addComponent<ecs::Transform>(ecsRobot, transform);
 
         ecs::Movement movement{};
@@ -49,18 +61,6 @@ public:
 
         ecs::TerrainCollision terrainCollision{};
         m_register->addComponent<ecs::TerrainCollision>(ecsRobot, terrainCollision);
-
-        Ogre::SceneNode * robotWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-        robotWorldNode->setPosition(pos.x, pos.y, pos.z);
-
-        Ogre::SceneNode * robotLocalNode = robotWorldNode->createChildSceneNode();
-        // set entity to look at direction (1, 0, 0) at spawn time
-        robotLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
-        robotLocalNode->attachObject(robot);
-
-        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");
-        robotAnimation->setEnabled(true);
-        robotAnimation->setLoop(true);
 
         return ecsRobot;
     }

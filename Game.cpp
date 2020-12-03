@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 #include <Ogre.h>
 #include <RTShaderSystem/OgreRTShaderSystem.h>
 #include <Bites/OgreApplicationContext.h>
@@ -23,11 +24,11 @@ Game::Game() : OgreBites::ApplicationContext("first try")
 
 Game::~Game()
 {
+    m_sceneManager = nullptr;
+    m_camera = nullptr;
     delete m_terrainLoader;
-    delete m_camera;
     delete m_cameraControl;
     delete m_entityFactory;
-    delete m_sceneManager;
 }
 
 bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
@@ -84,17 +85,20 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
 
     // choose entity: for now just saved in member variable
 
-    // set DestinationComponent of entity
-    ecs::Destination & destination = aRegister.getComponent<ecs::Destination>(robot);
-    destination.destination = result.position;
+    for(auto & entity : m_tempEntities)
+    {
+        // set DestinationComponent of entity
+        ecs::Destination & destination = aRegister.getComponent<ecs::Destination>(entity);
+        destination.destination = result.position;
 
-    // change MovementComponent: velocity to direction of destination
-    ecs::Movement & movement = aRegister.getComponent<ecs::Movement>(robot);
-    ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(robot);
-    movement.velocity = destination.destination - transform.position;
-    movement.velocity.z = 0.0f;
-    movement.velocity.normalise();
-    movement.velocity *= 50.0f;
+        // change MovementComponent: velocity to direction of destination
+        ecs::Movement & movement = aRegister.getComponent<ecs::Movement>(entity);
+        ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(entity);
+        movement.velocity = destination.destination - transform.position;
+        movement.velocity.z = 0.0f;
+        movement.velocity.normalise();
+        movement.velocity *= 50.0f;
+    }
 }
 
 bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
@@ -243,9 +247,17 @@ void Game::setup(void)
 
     addInputListener(this);
 
-    float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(0,0,0);
-    Ogre::Vector3 pos{0,0,height*3.0f};
-    robot = m_entityFactory->makeRobot(pos);
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> distribution(-TERRAIN_WORLD_SIZE/2.0f, TERRAIN_WORLD_SIZE/2.0f);
+    for(int i = 0; i<1000; i++)
+    {
+        float posX = distribution(generator);
+        float posY = distribution(generator);
+        float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(posX,posY,0);
+        Ogre::Vector3 pos{posX,posY,height*3.0f};
+        ecs::Entity curEntity = m_entityFactory->makeRobot(pos);
+        m_tempEntities.push_back(curEntity);
+    }
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)

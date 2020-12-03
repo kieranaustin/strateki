@@ -34,8 +34,8 @@ private:
 
     bool m_TerrainsImported = false;
 
-    Ogre::TerrainGlobalOptions* m_TerrainGlobOpts;
     Ogre::TerrainGroup* m_TerrainGroup;
+    Ogre::TerrainGlobalOptions* m_TerrainGlobOpts;
 
     void configureTerrainDefaults(Ogre::Light* light);
     void defineTerrain(long x, long y, bool flat = false);

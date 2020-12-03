@@ -23,6 +23,8 @@ public:
     {
         ecs::Entity ecsRobot = m_register->createEntity();
         Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
+        //robot->setVisible(true);
+        //robot->setDebugDisplayEnabled(true);
 
         ecs::Mesh ecsMesh;
         ecsMesh.ID = robot->getName();

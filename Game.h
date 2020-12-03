@@ -63,7 +63,7 @@ private:
     std::shared_ptr<ecs::DestinationSystem> m_destinationSystem;
     EntityFactory * m_entityFactory;
 
-    ecs::Entity robot;
+    std::vector<ecs::Entity> m_tempEntities;
 };
 
 #endif //SCENE_MAIN_H

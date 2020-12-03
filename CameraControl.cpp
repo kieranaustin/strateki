@@ -22,11 +22,14 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre
 
 CameraControl::~CameraControl()
 {
-    delete m_cameraNode;
-    delete m_cameraRigRotateNode;
-    delete m_cameraRigNode;
-    delete m_coordAxes;
-    delete m_coordAxesRotate;
+    m_camera = nullptr;
+    m_sceneManager = nullptr;
+    m_cameraRigNode = nullptr;
+    m_cameraRigRotateNode = nullptr;
+    m_cameraNode = nullptr;
+    m_TerrainGroup = nullptr;
+    m_coordAxes = nullptr;
+    m_coordAxesRotate = nullptr;
 }
 
 void CameraControl::setup()

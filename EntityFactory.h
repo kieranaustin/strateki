@@ -19,12 +19,12 @@ public:
     //TODO: implement function for wolf
     //m_coordAxes = m_sceneManager->createEntity("Wolf1_Material__wolf_col_tga_0.mesh");
 
-    ecs::Entity makeRobot(Ogre::Vector3 &pos)
+    ecs::Entity makeRobot(const Ogre::Vector3 &pos)
     {
         ecs::Entity ecsRobot = m_register->createEntity();
         Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
-        //robot->setVisible(true);
-        //robot->setDebugDisplayEnabled(true);
+        robot->setVisible(true);
+        robot->setDebugDisplayEnabled(true);
 
         ecs::Mesh ecsMesh;
         ecsMesh.ID = robot->getName();
@@ -34,28 +34,27 @@ public:
         m_register->addComponent<ecs::Mesh>(ecsRobot, ecsMesh);
         m_register->getComponent<ecs::Mesh>(ecsRobot).ID;
 
-        ecs::Transform transform;
+        ecs::Transform transform{};
         transform.position = pos;
         m_register->addComponent<ecs::Transform>(ecsRobot, transform);
 
-        ecs::Movement movement;
+        ecs::Movement movement{};
         m_register->addComponent<ecs::Movement>(ecsRobot, movement);
 
-        ecs::Destination destination;
+        ecs::Destination destination{};
         m_register->addComponent<ecs::Destination>(ecsRobot, destination);
 
-        ecs::Gravity gravity;
+        ecs::Gravity gravity{};
         m_register->addComponent<ecs::Gravity>(ecsRobot, gravity);
 
-        ecs::TerrainCollision terrainCollision;
+        ecs::TerrainCollision terrainCollision{};
         m_register->addComponent<ecs::TerrainCollision>(ecsRobot, terrainCollision);
 
         Ogre::SceneNode * robotWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-        // set entity to look at direction (1, 0, 0) at spawn time
-        //robotWorldNode->roll(Ogre::Radian(Ogre::Degree(180)));
         robotWorldNode->setPosition(pos.x, pos.y, pos.z);
 
         Ogre::SceneNode * robotLocalNode = robotWorldNode->createChildSceneNode();
+        // set entity to look at direction (1, 0, 0) at spawn time
         robotLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
         robotLocalNode->attachObject(robot);
 
@@ -67,7 +66,7 @@ public:
     }
 
 private:
-    ecs::Register * m_register;
-    Ogre::SceneManager * m_sceneManager;
+    ecs::Register * m_register = nullptr;
+    Ogre::SceneManager * m_sceneManager = nullptr;
 };
 

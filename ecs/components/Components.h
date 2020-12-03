@@ -11,26 +11,26 @@ namespace ecs
 {
     struct Transform
      {
-        Ogre::Vector3 position{};
-        Ogre::Quaternion rotation{};
-        Ogre::Vector3 scale{};
+        Ogre::Vector3 position{0,0,0};
+        Ogre::Quaternion rotation{0,0,0,1};
+        Ogre::Vector3 scale{1,1,1};
     };
 
     struct Movement
     {
-        Ogre::Vector3 velocity{};
-        Ogre::Vector3 acceleration{};
+        Ogre::Vector3 velocity{0,0,0};
+        Ogre::Vector3 acceleration{0,0,0};
     };
 
     struct Destination
     {
-        Ogre::Vector3 destination{};
+        Ogre::Vector3 destination{0,0,0};
     };
 
     struct Gravity
     {
         Ogre::Vector3 acceleration{0.0, 0.0, -9.81};
-        Ogre::Vector3 velocity{};
+        Ogre::Vector3 velocity{0,0,0};
     };
 
     struct TerrainCollision
@@ -40,10 +40,10 @@ namespace ecs
 
     struct Mesh
     {
-        Ogre::String ID{};
-        Ogre::String file{};
-        bool hasAnimation{};
-        Ogre::String animationState{};
+        Ogre::String ID{""};
+        Ogre::String file{""};
+        bool hasAnimation{false};
+        Ogre::String animationState{""};
         /* TODO: maybe save pointer to worldNode of object, such that it is easier to get the node to change position and rotation in space
            and avoid having to sort out ...->getParentSceneNode()->getParentSceneNode()->... in RenderSystem
         */

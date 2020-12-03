@@ -255,7 +255,15 @@ void Game::setup(void)
         float posY = distribution(generator);
         float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(posX,posY,0);
         Ogre::Vector3 pos{posX,posY,height*3.0f};
-        ecs::Entity curEntity = m_entityFactory->makeRobot(pos);
+        ecs::Entity curEntity;
+        if (i%2==0)
+        {
+            curEntity = m_entityFactory->makeRobot(pos);
+        }
+        else
+        {
+            curEntity = m_entityFactory->makeWolf(pos);
+        }
         m_tempEntities.push_back(curEntity);
     }
 }

@@ -23,39 +23,53 @@ message("")
 
 add_subdirectory(test)
 
+###
+### Declare Libraries
 add_library(Grid Grid.cpp Grid.h)
-add_library(CameraControl CameraControl.cpp CameraControl.h)
-add_library(TerrainLoader TerrainLoader.cpp TerrainLoader.h)
+add_library(GameCore
+    Game.h Game.cpp
+    CameraControl.h CameraControl.cpp
+    TerrainLoader.h TerrainLoader.cpp
+    EntityFactory.h
+)
 add_library(ecs
     ecs/Definitions.h
     ecs/EntityManager.cpp ecs/EntityManager.h
     ecs/ComponentContainer.h ecs/ComponentManager.h
     ecs/System.h ecs/SystemManager.h
     ecs/Register.h
-    ecs/components/Components.h
 )
 add_library(ecsSystems
+    ecs/components/Components.h
     ecs/systems/MovementSystem.h
     ecs/systems/RenderSystem.h
     ecs/systems/TerrainCollisionSystem.h
     ecs/systems/GravitySystem.h
-    ecs/systems/DestinationSystem.h)
+    ecs/systems/DestinationSystem.h
+)
 
 
-add_executable(${CMAKE_PROJECT_NAME} main.cpp Game.cpp Game.h EntityFactory.h)
+###
+### Declare Executables
+add_executable(${CMAKE_PROJECT_NAME} main.cpp)
 
 
+###
+### Link Libraries
 target_link_libraries(Grid OgreMain OgreBites)
-target_link_libraries(CameraControl OgreBites OgreTerrain)
-target_link_libraries(TerrainLoader OgreMain OgreTerrain)
+target_link_libraries(GameCore
+    OgreMain OgreBites OgreTerrain
+    ecs ecsSystems
+)
 target_link_libraries(ecs OgreMain)
 target_link_libraries(ecsSystems ecs)
 target_link_libraries(${CMAKE_PROJECT_NAME}
     OgreBites OgreRTShaderSystem OgreTerrain
-    Grid CameraControl TerrainLoader
-    ecs ecsSystems
+    GameCore
 )
 
 
+###
+### Copy Assets and Configuration to build directory
 file(COPY media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

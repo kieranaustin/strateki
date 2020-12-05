@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
-project(scene)
 
+project(strateki)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -42,7 +42,7 @@ add_library(ecsSystems
     ecs/systems/DestinationSystem.h)
 
 
-add_executable(scene main.cpp Game.cpp Game.h EntityFactory.h)
+add_executable(${PROJECT_NAME} main.cpp Game.cpp Game.h EntityFactory.h)
 
 
 target_link_libraries(Grid OgreMain OgreBites)
@@ -50,7 +50,7 @@ target_link_libraries(CameraControl OgreBites OgreTerrain)
 target_link_libraries(TerrainLoader OgreMain OgreTerrain)
 target_link_libraries(ecs OgreMain)
 target_link_libraries(ecsSystems ecs)
-target_link_libraries(scene 
+target_link_libraries(${PROJECT_NAME}
     OgreBites OgreRTShaderSystem OgreTerrain
     Grid CameraControl TerrainLoader
     ecs ecsSystems

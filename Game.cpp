@@ -262,7 +262,7 @@ void Game::setup(void)
         }
         else
         {
-            curEntity = m_entityFactory->makeWolf(pos);
+            curEntity = m_entityFactory->makeLighter(pos);
         }
         m_tempEntities.push_back(curEntity);
     }

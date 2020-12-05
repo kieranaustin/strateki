@@ -24,60 +24,47 @@ public:
     {
     }
 
-    ecs::Entity makeWolf(const Ogre::Vector3 &pos)
+    ecs::Entity makeLighter(const Ogre::Vector3 &pos)
     {
         // set up Ogre Entity
-        //Ogre::Entity *wolf = m_sceneManager->createEntity("Wolf-Blender-2.82a.blend"); // Does not work. Blender file does not work with Assimp plugin
-        Ogre::Entity *wolf = m_sceneManager->createEntity("Wolf1_Material__wolf_col_tga_0.mesh");
+        Ogre::Entity *lighter = m_sceneManager->createEntity("lighter.mesh");
 
-        // possible animation state strings for wolf. Unfortunately, all but Idle are horribly broken... :/
-        //01_Run_Armature_0
-        //02_walk_Armature_0
-        //03_creep_Armature_0
-        //04_Idle_Armature_0
-        //05_site_Armature_0
-        Ogre::AnimationState *wolfAnimation = wolf->getAnimationState("04_Idle_Armature_0");
-        wolfAnimation->setEnabled(true);
-        wolfAnimation->setLoop(true);
+        Ogre::SceneNode * lighterWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        lighterWorldNode->setPosition(pos.x, pos.y, pos.z);
 
-
-        Ogre::SceneNode * wolfWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
-        wolfWorldNode->setPosition(pos.x, pos.y, pos.z);
-
-        Ogre::SceneNode * wolfLocalNode = wolfWorldNode->createChildSceneNode();
-        wolfLocalNode->setScale(75,75,75);
-        // rotate entity to be upright in z-direction
-        wolfLocalNode->rotate(Ogre::Vector3(0, 0, 1), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
-        wolfLocalNode->attachObject(wolf);
+        Ogre::SceneNode * lighterLocalNode = lighterWorldNode->createChildSceneNode();
+        lighterLocalNode->setScale(2,2,2);
+        lighterLocalNode->setPosition(0,0,6);
+        lighterLocalNode->attachObject(lighter);
 
         // set up ecs Entity
-        ecs::Entity ecsWolf = m_register->createEntity();
+        ecs::Entity ecsLighter = m_register->createEntity();
 
         ecs::Mesh ecsMesh;
-        ecsMesh.ID = wolf->getName();
-        ecsMesh.file = wolf->getMesh()->getName();
-        ecsMesh.hasAnimation = true;
-        ecsMesh.animationState = wolfAnimation->getAnimationName();
-        m_register->addComponent<ecs::Mesh>(ecsWolf, ecsMesh);
+        ecsMesh.ID = lighter->getName();
+        ecsMesh.file = lighter->getMesh()->getName();
+        ecsMesh.hasAnimation = false;
+        ecsMesh.animationState = "";
+        m_register->addComponent<ecs::Mesh>(ecsLighter, ecsMesh);
 
         ecs::Transform transform{};
-        transform.position = wolfWorldNode->getPosition();
-        transform.scale = wolfLocalNode->getScale();
-        m_register->addComponent<ecs::Transform>(ecsWolf, transform);
+        transform.position = lighterWorldNode->getPosition();
+        transform.scale = lighterLocalNode->getScale();
+        m_register->addComponent<ecs::Transform>(ecsLighter, transform);
 
         ecs::Movement movement{};
-        m_register->addComponent<ecs::Movement>(ecsWolf, movement);
+        m_register->addComponent<ecs::Movement>(ecsLighter, movement);
 
         ecs::Destination destination{};
-        m_register->addComponent<ecs::Destination>(ecsWolf, destination);
+        m_register->addComponent<ecs::Destination>(ecsLighter, destination);
 
         ecs::Gravity gravity{};
-        m_register->addComponent<ecs::Gravity>(ecsWolf, gravity);
+        m_register->addComponent<ecs::Gravity>(ecsLighter, gravity);
 
         ecs::TerrainCollision terrainCollision{};
-        m_register->addComponent<ecs::TerrainCollision>(ecsWolf, terrainCollision);
+        m_register->addComponent<ecs::TerrainCollision>(ecsLighter, terrainCollision);
 
-        return ecsWolf;
+        return ecsLighter;
     }
 
     ecs::Entity makeRobot(const Ogre::Vector3 &pos)

@@ -48,13 +48,13 @@ material Tile/Yellow
         {
             texture_unit
             {
-                colour_op_ex source1 src_manual src_current 0 1 1
+                colour_op_ex source1 src_manual src_current 1 1 0
             }
         }
     }
 }
 
-material Tile/Purple
+material Tile/Magenta
 {
     technique
     {
@@ -63,6 +63,20 @@ material Tile/Purple
             texture_unit
             {
                 colour_op_ex source1 src_manual src_current 1 0 1
+            }
+        }
+    }
+}
+
+material Tile/Cyan
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 1 1
             }
         }
     }

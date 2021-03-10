@@ -14,6 +14,7 @@
 #include "ecs/systems/GravitySystem.h"
 #include "ecs/systems/DestinationSystem.h"
 #include "EntityFactory.h"
+#include "SelectionBox.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -47,6 +48,7 @@ public:
 
     bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
     void simulateCommandSystem(const OgreBites::MouseButtonEvent& evt);
+    void performSelection(const Ogre::Vector2 & topLeft, const Ogre::Vector2 & bottomRight);
 
 private:
     Ogre::SceneManager* m_sceneManager;
@@ -62,6 +64,14 @@ private:
     std::shared_ptr<ecs::GravitySystem> m_gravitySystem;
     std::shared_ptr<ecs::DestinationSystem> m_destinationSystem;
     EntityFactory * m_entityFactory;
+
+    // Selection
+    std::list<Ogre::MovableObject*> m_selection;
+    SelectionBox * m_selectionBox;
+    bool m_isSelecting = false;
+    Ogre::Vector2 m_selectionStart;
+    Ogre::Vector2 m_selectionEnd;
+    Ogre::PlaneBoundedVolumeListSceneQuery * m_volumeQuery;
 
     std::vector<ecs::Entity> m_tempEntities;
 };

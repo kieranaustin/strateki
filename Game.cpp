@@ -374,11 +374,11 @@ void Game::setup(void)
             curEntity = m_entityFactory->makeLighter(pos);
         }
         m_tempEntities.push_back(curEntity);
-
-        m_selectionBox = new SelectionBox("selectionBox");
-        m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionBox);
-        m_volumeQuery = m_sceneManager->createPlaneBoundedVolumeQuery(Ogre::PlaneBoundedVolumeList());
     }
+
+    m_selectionBox = new SelectionBox("selectionBox");
+    m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionBox);
+    m_volumeQuery = m_sceneManager->createPlaneBoundedVolumeQuery(Ogre::PlaneBoundedVolumeList());
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)

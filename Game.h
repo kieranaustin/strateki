@@ -48,7 +48,7 @@ public:
 
     bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
     void simulateCommandSystem(const OgreBites::MouseButtonEvent& evt);
-    void performSelection(const Ogre::Vector2 & topLeft, const Ogre::Vector2 & bottomRight);
+    void performBoxSelection(const Ogre::Vector2 & topLeft, const Ogre::Vector2 & bottomRight);
 
 private:
     Ogre::SceneManager* m_sceneManager;
@@ -67,11 +67,19 @@ private:
 
     // Selection
     std::list<Ogre::MovableObject*> m_selection;
-    SelectionBox * m_selectionBox;
     bool m_isSelecting = false;
-    Ogre::Vector2 m_selectionStart;
-    Ogre::Vector2 m_selectionEnd;
+
+    // Selection Box/Rectangle
+    SelectionBox * m_selectionBox;
+    Ogre::Vector2 m_selectionBoxBegin;
+    Ogre::Vector2 m_selectionBoxEnd;
     Ogre::PlaneBoundedVolumeListSceneQuery * m_volumeQuery;
+
+    // Selection Sphere
+    Ogre::Entity * m_selectionSphere;
+    bool m_selectionSphereBeginOnTerrain = false;
+    Ogre::Vector3 m_selectionSphereCenter = {0.0, 0.0, 0.0};
+    Ogre::Vector3 m_selectionSphereScale = Ogre::Vector3::ZERO;
 
     std::vector<ecs::Entity> m_tempEntities;
 };

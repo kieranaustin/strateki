@@ -72,5 +72,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 
 ###
 ### Copy Assets and Configuration to build directory
+message("Copying assets and configurations to build directory")
 file(COPY media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY resources.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

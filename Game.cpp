@@ -14,6 +14,9 @@
 
 #define TERRAIN_WORLD_SIZE 8000.0f
 #define TERRAIN_SIZE 513
+// TODO: why does aTerrainScale with values 8000.0f and 513 work exactly for scaling factor of selection sphere, even when changing TERRAIN_WORLD_SIZE and TERRAIN_SIZE
+//static double aTerrainScale = M_PI * TERRAIN_WORLD_SIZE / (double)TERRAIN_SIZE;
+static double aTerrainScale = M_PI * 8000.0f / (double)513;
 
 ecs::Register aRegister;
 
@@ -35,8 +38,8 @@ Game::~Game()
 
 bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
 {
-    Ogre::Real mousePosNormX = (float)evt.x / m_camera->getViewport()->getActualWidth();
-    Ogre::Real mousePosNormY = (float)evt.y / m_camera->getViewport()->getActualHeight();
+    Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
+    Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
 
     Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
     Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
@@ -77,8 +80,8 @@ bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
 void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
 {
     // get destination on terrain from mouse click
-    Ogre::Real mousePosNormX = (float)evt.x / m_camera->getViewport()->getActualWidth();
-    Ogre::Real mousePosNormY = (float)evt.y / m_camera->getViewport()->getActualHeight();
+    Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
+    Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
     Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
     Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
 
@@ -103,7 +106,7 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     }
 }
 
-void Game::performSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &bottomRight)
+void Game::performBoxSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &bottomRight)
 {
     float left = topLeft.x;
     float top = topLeft.y;
@@ -139,10 +142,10 @@ void Game::performSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &b
     }
 
     // get rays pointing from the four corners of our selection box to infinity
-    Ogre::Ray rayTopLeft     = m_camera->getCameraToViewportRay(left, top);
-    Ogre::Ray rayTopRight    = m_camera->getCameraToViewportRay(right, top);
-    Ogre::Ray rayBottomLeft  = m_camera->getCameraToViewportRay(left, bottom);
-    Ogre::Ray rayBottomRight = m_camera->getCameraToViewportRay(right, bottom);
+    Ogre::Ray rayTopLeft     = m_cameraControl->getCamera()->getCameraToViewportRay(left, top);
+    Ogre::Ray rayTopRight    = m_cameraControl->getCamera()->getCameraToViewportRay(right, top);
+    Ogre::Ray rayBottomLeft  = m_cameraControl->getCamera()->getCameraToViewportRay(left, bottom);
+    Ogre::Ray rayBottomRight = m_cameraControl->getCamera()->getCameraToViewportRay(right, bottom);
 
     // define the planes that surround our selection volume, i.e., around our selection box and the rays pointing to infinity
     // planes normals point inside the volume
@@ -176,6 +179,7 @@ void Game::performSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &b
     {
         m_selection.push_back((*it));
         (*it)->getParentSceneNode()->showBoundingBox(true);
+        std::cout << (*it)->getName() << std::endl;
     }
 }
 
@@ -221,15 +225,36 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
         //deformTerrain(evt);
         //simulateCommandSystem(evt);
 
-        // draw selection box
-        Ogre::Real mousePosNormX = (float)evt.x / m_camera->getViewport()->getActualWidth();
-        Ogre::Real mousePosNormY = (float)evt.y / m_camera->getViewport()->getActualHeight();
+        // selection
+        Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
+        Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
         m_isSelecting = true;
+        m_selectionBoxEnd = {mousePosNormX, mousePosNormY};
+
+        // selection box
+        m_selectionBoxBegin = m_selectionBoxEnd;
         m_selectionBox->clear();
         m_selectionBox->setVisible(true);
-        m_selectionStart.x = mousePosNormX;
-        m_selectionStart.y = mousePosNormY;
-        m_selectionEnd = m_selectionStart;
+
+        // selection sphere
+        m_selectionSphereScale = Ogre::Vector3::ZERO;
+        Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
+        Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
+        if (result.hit)
+        {
+            // clicked on terrain
+            m_selectionSphereBeginOnTerrain = true;
+            m_selectionSphereCenter = result.position;
+            m_selectionSphere->getParentSceneNode()->setPosition(m_selectionSphereCenter);
+            m_selectionSphere->getParentSceneNode()->setScale(m_selectionSphereScale);
+            m_selectionSphere->setVisible(true);
+        }
+        else
+        {
+            // clicked outside of terrain, i.e., on empty space
+            m_selectionSphereBeginOnTerrain = false;
+            m_selectionSphereCenter = {-1, -1, -1};
+        }
     }
     return true;
 }
@@ -238,9 +263,55 @@ bool Game::mouseMoved(const OgreBites::MouseMotionEvent& evt)
 {
     if (m_isSelecting)
     {
-        m_selectionEnd.x = (float)evt.x / m_camera->getViewport()->getActualWidth();
-        m_selectionEnd.y = (float)evt.y / m_camera->getViewport()->getActualHeight();
-        m_selectionBox->setCorners(m_selectionStart.x, m_selectionStart.y, m_selectionEnd.x, m_selectionEnd.y);
+        Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
+        Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
+
+        m_selectionBoxEnd = {mousePosNormX, mousePosNormY};
+
+        // selection box
+        m_selectionBox->setCorners(m_selectionBoxBegin.x, m_selectionBoxBegin.y, m_selectionBoxEnd.x, m_selectionBoxEnd.y);
+
+        // selection sphere
+        Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
+        Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
+        bool selectionSphereEndOnTerrain = result.hit;
+        if (m_selectionSphereBeginOnTerrain)
+        {
+            // mouse moved from terrain...
+            Ogre::Vector3 mouseToWorldPosition;
+            if (selectionSphereEndOnTerrain)
+            {
+                // ... onto terrain -> find world position of mouse on terrain
+                mouseToWorldPosition = result.position;
+            }
+            else
+            {
+                // ... to outside of terrain -> find world position of mouse on plane,
+                // where the plane is along xy-axes at the height (z) of the sphere-center
+                Ogre::Real height = m_selectionSphereCenter.z;
+                Ogre::Plane plane = Ogre::Plane(Ogre::Vector3(0,0, height),
+                                                Ogre::Vector3(1,0, height),
+                                                Ogre::Vector3(0,1, height));
+                Ogre::RayTestResult mouseToPlaneResult = mouseRay.intersects(plane);
+                mouseToWorldPosition = mouseRay.getPoint(mouseToPlaneResult.second);
+            }
+            // set and show selection sphere
+            m_selectionSphereScale = Ogre::Vector3((mouseToWorldPosition - m_selectionSphereCenter).length() / aTerrainScale);
+            m_selectionSphere->getParentSceneNode()->setScale(m_selectionSphereScale);
+            m_selectionSphere->setVisible(true);
+        }
+        else
+        {
+            // mouse moved from outside of terrain...
+            if (selectionSphereEndOnTerrain)
+            {
+                // .. onto terrain -> set sphere-center on edge of terrain
+                m_selectionSphereCenter = result.position;
+                m_selectionSphere->getParentSceneNode()->setPosition(m_selectionSphereCenter);
+                m_selectionSphereBeginOnTerrain = true;
+            }
+            // ... and is still outside of terrain -> do nothing = no selection sphere
+        }
     }
     else
     {
@@ -253,10 +324,13 @@ bool Game::mouseReleased(const OgreBites::MouseButtonEvent& evt)
 {
     if(m_isSelecting)
     {
-        performSelection(m_selectionStart, m_selectionEnd);
+        performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
         m_selectionBox->clear();
         m_selectionBox->setVisible(false);
         m_isSelecting = false;
+
+        m_selectionSphere->getParentSceneNode()->showBoundingBox(false);
+        m_selectionSphere->setVisible(false);
     }
     else
     {
@@ -379,6 +453,12 @@ void Game::setup(void)
     m_selectionBox = new SelectionBox("selectionBox");
     m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionBox);
     m_volumeQuery = m_sceneManager->createPlaneBoundedVolumeQuery(Ogre::PlaneBoundedVolumeList());
+
+    m_selectionSphere = m_sceneManager->createEntity("selectionSphere", Ogre::SceneManager::PT_SPHERE);
+    m_selectionSphere->setMaterialName("selectionSphereWide", "Map");
+    m_selectionSphere->setVisible(false);
+    m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionSphere);
+    m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(M_PI/2.), Ogre::Node::TS_LOCAL);
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
@@ -390,6 +470,12 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
     m_destinationSystem->update(dt);
     m_terrainCollisionSystem->update(dt);
     m_renderSystem->update(dt);
+
+    // TODO: implement the rotation of the selection sphere as ecs-system
+    if(m_isSelecting)
+    {
+        m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(0,0,1), Ogre::Radian(0.5*dt), Ogre::Node::TS_WORLD);
+    }
 
     // mInputListeners comes from Base Class ApplicationContextBase
     for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)

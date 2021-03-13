@@ -12,20 +12,6 @@ material Tile/Red
     }
 }
 
-material Tile/Blue
-{
-    technique
-    {
-        pass
-        {
-            texture_unit
-            {
-                colour_op_ex source1 src_manual src_current 0 0 1
-            }
-        }
-    }
-}
-
 material Tile/Green
 {
     technique
@@ -40,7 +26,7 @@ material Tile/Green
     }
 }
 
-material Tile/Yellow
+material Tile/Blue
 {
     technique
     {
@@ -48,7 +34,21 @@ material Tile/Yellow
         {
             texture_unit
             {
-                colour_op_ex source1 src_manual src_current 1 1 0
+                colour_op_ex source1 src_manual src_current 0 0 1
+            }
+        }
+    }
+}
+
+material Tile/Cyan
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 1 1
             }
         }
     }
@@ -68,7 +68,7 @@ material Tile/Magenta
     }
 }
 
-material Tile/Cyan
+material Tile/Yellow
 {
     technique
     {
@@ -76,7 +76,128 @@ material Tile/Cyan
         {
             texture_unit
             {
-                colour_op_ex source1 src_manual src_current 0 1 1
+                colour_op_ex source1 src_manual src_current 1 1 0
+            }
+        }
+    }
+}
+
+material Tile/Black
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 0 0 0
+            }
+        }
+    }
+}
+
+material Tile/White
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                colour_op_ex source1 src_manual src_current 1 1 1
+            }
+        }
+    }
+}
+
+material selectionSphere
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_check on
+            cull_hardware anticlockwise
+            cull_software back
+            ambient  0 1 1 0.3
+            diffuse  0 1 1 0.3
+            specular 0 1 1 0.3 0
+            emissive 0 1 1 1
+            texture_unit
+            {
+                texture selection_sphere.png
+                scroll 0.0 0.5
+            }
+        }
+        pass
+        {
+            scene_blend alpha_blend
+            depth_check on
+            cull_hardware clockwise
+            cull_software front
+            ambient  0 1 1 0.3
+            diffuse  0 1 1 0.3
+            specular 0 1 1 0.3 0
+            emissive 0 1 1 1
+            texture_unit
+            {
+                texture selection_sphere.png
+                scroll 0.0 0.5
+            }
+        }
+    }
+}
+
+material selectionSphereWide
+{
+    technique
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_check on
+            cull_hardware anticlockwise
+            cull_software back
+            ambient  0 1 1 0.3
+            diffuse  0 1 1 0.3
+            specular 0 1 1 0.3 0
+            emissive 0 1 1 1
+            texture_unit
+            {
+                texture selection_sphere_wide.png
+                scroll 0.0 0.5
+            }
+        }
+        pass
+        {
+            scene_blend alpha_blend
+            depth_check on
+            cull_hardware clockwise
+            cull_software front
+            ambient  0 1 1 0.3
+            diffuse  0 1 1 0.3
+            specular 0 1 1 0.3 0
+            emissive 0 1 1 1
+            texture_unit
+            {
+                texture selection_sphere_wide.png
+                scroll 0.0 0.5
+            }
+        }
+    }
+}
+
+material selectionSphereMarble
+{
+    technique
+    {
+        pass
+        {
+            texture_unit
+            {
+                texture terrain.png
+                scroll 0.7 0
             }
         }
     }

@@ -12,11 +12,6 @@
 //#define PAGING
 //#define DEBUG
 
-#define TERRAIN_WORLD_SIZE 8000.0f
-#define TERRAIN_SIZE 513
-// TODO: why does aTerrainScale with values 8000.0f and 513 work exactly for scaling factor of selection sphere, even when changing TERRAIN_WORLD_SIZE and TERRAIN_SIZE
-//static double aTerrainScale = M_PI * TERRAIN_WORLD_SIZE / (double)TERRAIN_SIZE;
-static double aTerrainScale = M_PI * 8000.0f / (double)513;
 
 ecs::Register aRegister;
 
@@ -106,6 +101,15 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     }
 }
 
+void Game::deselectAll()
+{
+    for(auto it = m_selection.begin(); it != m_selection.end(); it++)
+    {
+        (*it)->getParentSceneNode()->showBoundingBox(false);
+    }
+    m_selection.clear();
+}
+
 void Game::performBoxSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &bottomRight)
 {
     float left = topLeft.x;
@@ -128,11 +132,7 @@ void Game::performBoxSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2
     }
 
     //deselect all objects
-    for(auto it = m_selection.begin(); it != m_selection.end(); it++)
-    {
-        (*it)->getParentSceneNode()->showBoundingBox(false);
-    }
-    m_selection.clear();
+    deselectAll();
 
     // check if selection box is too small
     if ((right - left) * (bottom - top) < 0.0001)
@@ -175,11 +175,41 @@ void Game::performBoxSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2
 
     // select objects from query result
     // TODO: map Ogres MovableObjects to ecs entities and choose selection from there
-    for(auto it = result.movables.begin(); it != result.movables.end(); ++it)
+    for(const auto obj : result.movables)
     {
-        m_selection.push_back((*it));
-        (*it)->getParentSceneNode()->showBoundingBox(true);
-        std::cout << (*it)->getName() << std::endl;
+        if (rejectFromSelection(obj))
+            continue;
+
+        m_selection.push_back(obj);
+        obj->getParentSceneNode()->showBoundingBox(true);
+        std::cout << obj->getName() << std::endl;
+    }
+}
+
+void Game::performSphereSelection(const Ogre::Vector3 &center, const Ogre::Real &radius)
+{
+    //deselect all objects
+    deselectAll();
+
+    // perform query
+    Ogre::Sphere sphere = Ogre::Sphere(center, radius);
+    m_sphereQuery->setSphere(Ogre::Sphere(center, radius));
+    Ogre::SceneQueryResult result = m_sphereQuery->execute();
+
+    // select objects from query result
+    for(const auto obj : result.movables)
+    {
+        if (rejectFromSelection(obj))
+            continue;
+
+        Ogre::Vector3 objPos = obj->getParentSceneNode()->_getDerivedPosition();
+        Ogre::Real objDist = (center-objPos).length();
+        if (objDist < radius)
+        {
+            m_selection.push_back(obj);
+            obj->getParentSceneNode()->showBoundingBox(true);
+            std::cout << obj->getName() << std::endl;
+        }
     }
 }
 
@@ -237,7 +267,7 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
         m_selectionBox->setVisible(true);
 
         // selection sphere
-        m_selectionSphereScale = Ogre::Vector3::ZERO;
+        m_selectionSphereRadius = 0.0;
         Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
         Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
         if (result.hit)
@@ -246,7 +276,7 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
             m_selectionSphereBeginOnTerrain = true;
             m_selectionSphereCenter = result.position;
             m_selectionSphere->getParentSceneNode()->setPosition(m_selectionSphereCenter);
-            m_selectionSphere->getParentSceneNode()->setScale(m_selectionSphereScale);
+            m_selectionSphere->getParentSceneNode()->setScale(getSelectionSphereScale());
             m_selectionSphere->setVisible(true);
         }
         else
@@ -270,6 +300,7 @@ bool Game::mouseMoved(const OgreBites::MouseMotionEvent& evt)
 
         // selection box
         m_selectionBox->setCorners(m_selectionBoxBegin.x, m_selectionBoxBegin.y, m_selectionBoxEnd.x, m_selectionBoxEnd.y);
+        //performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
 
         // selection sphere
         Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
@@ -296,8 +327,8 @@ bool Game::mouseMoved(const OgreBites::MouseMotionEvent& evt)
                 mouseToWorldPosition = mouseRay.getPoint(mouseToPlaneResult.second);
             }
             // set and show selection sphere
-            m_selectionSphereScale = Ogre::Vector3((mouseToWorldPosition - m_selectionSphereCenter).length() / aTerrainScale);
-            m_selectionSphere->getParentSceneNode()->setScale(m_selectionSphereScale);
+            m_selectionSphereRadius = (mouseToWorldPosition - m_selectionSphereCenter).length();
+            m_selectionSphere->getParentSceneNode()->setScale(getSelectionSphereScale());
             m_selectionSphere->setVisible(true);
         }
         else
@@ -312,6 +343,8 @@ bool Game::mouseMoved(const OgreBites::MouseMotionEvent& evt)
             }
             // ... and is still outside of terrain -> do nothing = no selection sphere
         }
+        performSphereSelection(m_selectionSphereCenter, m_selectionSphereRadius);
+        m_selectionSphere->getParentSceneNode()->showBoundingBox(false);
     }
     else
     {
@@ -324,12 +357,12 @@ bool Game::mouseReleased(const OgreBites::MouseButtonEvent& evt)
 {
     if(m_isSelecting)
     {
-        performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
+        //performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
         m_selectionBox->clear();
         m_selectionBox->setVisible(false);
         m_isSelecting = false;
 
-        m_selectionSphere->getParentSceneNode()->showBoundingBox(false);
+        performSphereSelection(m_selectionSphereCenter, m_selectionSphereRadius);
         m_selectionSphere->setVisible(false);
     }
     else
@@ -459,6 +492,7 @@ void Game::setup(void)
     m_selectionSphere->setVisible(false);
     m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionSphere);
     m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(M_PI/2.), Ogre::Node::TS_LOCAL);
+    m_sphereQuery = m_sceneManager->createSphereQuery(Ogre::Sphere());
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)

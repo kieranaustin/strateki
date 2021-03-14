@@ -31,7 +31,10 @@ add_library(GameCore
     CameraControl.h CameraControl.cpp
     TerrainLoader.h TerrainLoader.cpp
     EntityFactory.h
+    SelectionController.h SelectionController.cpp
+    SelectionView.h
     SelectionBox.h SelectionBox.cpp
+    SelectionSphere.h SelectionSphere.cpp
 )
 add_library(ecs
     ecs/Definitions.h

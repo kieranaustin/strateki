@@ -22,13 +22,11 @@ Game::Game() : OgreBites::ApplicationContext("first try")
 
 Game::~Game()
 {
-    m_sceneManager->destroyQuery(m_volumeQuery);
     m_sceneManager = nullptr;
     m_camera = nullptr;
     delete m_terrainLoader;
     delete m_cameraControl;
     delete m_entityFactory;
-    delete m_selectionBox;
 }
 
 bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
@@ -101,118 +99,6 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     }
 }
 
-void Game::deselectAll()
-{
-    for(auto it = m_selection.begin(); it != m_selection.end(); it++)
-    {
-        (*it)->getParentSceneNode()->showBoundingBox(false);
-    }
-    m_selection.clear();
-}
-
-void Game::performBoxSelection(const Ogre::Vector2 &topLeft, const Ogre::Vector2 &bottomRight)
-{
-    float left = topLeft.x;
-    float top = topLeft.y;
-    float right = bottomRight.x;
-    float bottom = bottomRight.y;
-
-    // swap coordinates, such that always left<right and bottom<top
-    if (right < left)
-    {
-        float temp = left;
-        left = right;
-        right = temp;
-    }
-    if (bottom < top)
-    {
-        float temp = top;
-        top = bottom;
-        bottom = temp;
-    }
-
-    //deselect all objects
-    deselectAll();
-
-    // check if selection box is too small
-    if ((right - left) * (bottom - top) < 0.0001)
-    {
-        return;
-        // TODO: select single entity via single ray maybe?
-    }
-
-    // get rays pointing from the four corners of our selection box to infinity
-    Ogre::Ray rayTopLeft     = m_cameraControl->getCamera()->getCameraToViewportRay(left, top);
-    Ogre::Ray rayTopRight    = m_cameraControl->getCamera()->getCameraToViewportRay(right, top);
-    Ogre::Ray rayBottomLeft  = m_cameraControl->getCamera()->getCameraToViewportRay(left, bottom);
-    Ogre::Ray rayBottomRight = m_cameraControl->getCamera()->getCameraToViewportRay(right, bottom);
-
-    // define the planes that surround our selection volume, i.e., around our selection box and the rays pointing to infinity
-    // planes normals point inside the volume
-    Ogre::Plane planeFront, planeLeft, planeTop, planeRight, planeBottom;
-    Ogre::Real p = 10; // arbitrary but identical point on rays
-    planeFront  = Ogre::Plane(rayTopLeft.getOrigin(), rayTopRight.getOrigin(), rayBottomRight.getOrigin());
-    planeLeft   = Ogre::Plane(rayTopLeft.getOrigin(), rayBottomLeft.getPoint(p), rayTopLeft.getPoint(p));
-    planeTop    = Ogre::Plane(rayTopLeft.getOrigin(), rayTopLeft.getPoint(p), rayTopRight.getPoint(p));
-    planeRight  = Ogre::Plane(rayTopRight.getOrigin(), rayTopRight.getPoint(p), rayBottomRight.getPoint(p));
-    planeBottom = Ogre::Plane(rayBottomLeft.getOrigin(), rayBottomRight.getPoint(p), rayBottomLeft.getPoint(p));
-
-    // set up the volume defined by our planes
-    Ogre::PlaneBoundedVolume volume;
-    volume.planes.push_back(planeFront);
-    volume.planes.push_back(planeLeft);
-    volume.planes.push_back(planeTop);
-    volume.planes.push_back(planeRight);
-    volume.planes.push_back(planeBottom);
-
-    // create a volume list that is passed to m_volumeQuery
-    Ogre::PlaneBoundedVolumeList volumeList;
-    volumeList.push_back(volume);
-    m_volumeQuery->setVolumes(volumeList);
-
-    // obtain the query result
-    Ogre::SceneQueryResult result = m_volumeQuery->execute();
-
-    // select objects from query result
-    // TODO: map Ogres MovableObjects to ecs entities and choose selection from there
-    for(const auto obj : result.movables)
-    {
-        if (rejectFromSelection(obj))
-            continue;
-
-        m_selection.push_back(obj);
-        obj->getParentSceneNode()->showBoundingBox(true);
-        std::cout << obj->getName() << std::endl;
-    }
-}
-
-void Game::performSphereSelection(const Ogre::Vector3 &center, const Ogre::Real &radius)
-{
-    //deselect all objects
-    deselectAll();
-
-    // perform query
-    Ogre::Sphere sphere = Ogre::Sphere(center, radius);
-    m_sphereQuery->setSphere(Ogre::Sphere(center, radius));
-    Ogre::SceneQueryResult result = m_sphereQuery->execute();
-
-    // select objects from query result
-    for(const auto obj : result.movables)
-    {
-        if (rejectFromSelection(obj))
-            continue;
-
-        Ogre::Vector3 objPos = obj->getParentSceneNode()->_getDerivedPosition();
-        Ogre::Real objDist = (center-objPos).length();
-        if (objDist < radius)
-        {
-            m_selection.push_back(obj);
-            obj->getParentSceneNode()->showBoundingBox(true);
-            std::cout << obj->getName() << std::endl;
-        }
-    }
-}
-
 bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
 {
     if (evt.keysym.sym == OgreBites::SDLK_ESCAPE)
@@ -229,6 +115,14 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
         {
             mouseMode = MouseMode::CAMERA;
         }
+    }
+    if (evt.keysym.sym == OgreBites::SDLK_KP_1)
+    {
+        m_selectionController->switchTo("sphere");
+    }
+    if (evt.keysym.sym == OgreBites::SDLK_KP_2)
+    {
+        m_selectionController->switchTo("box");
     }
     return true;
 }
@@ -255,36 +149,8 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
         //deformTerrain(evt);
         //simulateCommandSystem(evt);
 
-        // selection
-        Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
-        Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
         m_isSelecting = true;
-        m_selectionBoxEnd = {mousePosNormX, mousePosNormY};
-
-        // selection box
-        m_selectionBoxBegin = m_selectionBoxEnd;
-        m_selectionBox->clear();
-        m_selectionBox->setVisible(true);
-
-        // selection sphere
-        m_selectionSphereRadius = 0.0;
-        Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
-        Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
-        if (result.hit)
-        {
-            // clicked on terrain
-            m_selectionSphereBeginOnTerrain = true;
-            m_selectionSphereCenter = result.position;
-            m_selectionSphere->getParentSceneNode()->setPosition(m_selectionSphereCenter);
-            m_selectionSphere->getParentSceneNode()->setScale(getSelectionSphereScale());
-            m_selectionSphere->setVisible(true);
-        }
-        else
-        {
-            // clicked outside of terrain, i.e., on empty space
-            m_selectionSphereBeginOnTerrain = false;
-            m_selectionSphereCenter = {-1, -1, -1};
-        }
+        return m_selectionController->mousePressed(evt);
     }
     return true;
 }
@@ -293,58 +159,7 @@ bool Game::mouseMoved(const OgreBites::MouseMotionEvent& evt)
 {
     if (m_isSelecting)
     {
-        Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
-        Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
-
-        m_selectionBoxEnd = {mousePosNormX, mousePosNormY};
-
-        // selection box
-        m_selectionBox->setCorners(m_selectionBoxBegin.x, m_selectionBoxBegin.y, m_selectionBoxEnd.x, m_selectionBoxEnd.y);
-        //performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
-
-        // selection sphere
-        Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
-        Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
-        bool selectionSphereEndOnTerrain = result.hit;
-        if (m_selectionSphereBeginOnTerrain)
-        {
-            // mouse moved from terrain...
-            Ogre::Vector3 mouseToWorldPosition;
-            if (selectionSphereEndOnTerrain)
-            {
-                // ... onto terrain -> find world position of mouse on terrain
-                mouseToWorldPosition = result.position;
-            }
-            else
-            {
-                // ... to outside of terrain -> find world position of mouse on plane,
-                // where the plane is along xy-axes at the height (z) of the sphere-center
-                Ogre::Real height = m_selectionSphereCenter.z;
-                Ogre::Plane plane = Ogre::Plane(Ogre::Vector3(0,0, height),
-                                                Ogre::Vector3(1,0, height),
-                                                Ogre::Vector3(0,1, height));
-                Ogre::RayTestResult mouseToPlaneResult = mouseRay.intersects(plane);
-                mouseToWorldPosition = mouseRay.getPoint(mouseToPlaneResult.second);
-            }
-            // set and show selection sphere
-            m_selectionSphereRadius = (mouseToWorldPosition - m_selectionSphereCenter).length();
-            m_selectionSphere->getParentSceneNode()->setScale(getSelectionSphereScale());
-            m_selectionSphere->setVisible(true);
-        }
-        else
-        {
-            // mouse moved from outside of terrain...
-            if (selectionSphereEndOnTerrain)
-            {
-                // .. onto terrain -> set sphere-center on edge of terrain
-                m_selectionSphereCenter = result.position;
-                m_selectionSphere->getParentSceneNode()->setPosition(m_selectionSphereCenter);
-                m_selectionSphereBeginOnTerrain = true;
-            }
-            // ... and is still outside of terrain -> do nothing = no selection sphere
-        }
-        performSphereSelection(m_selectionSphereCenter, m_selectionSphereRadius);
-        m_selectionSphere->getParentSceneNode()->showBoundingBox(false);
+        return m_selectionController->mouseMoved(evt);
     }
     else
     {
@@ -357,19 +172,14 @@ bool Game::mouseReleased(const OgreBites::MouseButtonEvent& evt)
 {
     if(m_isSelecting)
     {
-        //performBoxSelection(m_selectionBoxBegin, m_selectionBoxEnd);
-        m_selectionBox->clear();
-        m_selectionBox->setVisible(false);
+        m_selectionController->mouseReleased(evt);
         m_isSelecting = false;
-
-        performSphereSelection(m_selectionSphereCenter, m_selectionSphereRadius);
-        m_selectionSphere->setVisible(false);
+        return true;
     }
     else
     {
         return m_cameraControl->mouseReleased(evt);
     }
-    return true;
 }
 
 bool Game::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
@@ -483,16 +293,8 @@ void Game::setup(void)
         m_tempEntities.push_back(curEntity);
     }
 
-    m_selectionBox = new SelectionBox("selectionBox");
-    m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionBox);
-    m_volumeQuery = m_sceneManager->createPlaneBoundedVolumeQuery(Ogre::PlaneBoundedVolumeList());
-
-    m_selectionSphere = m_sceneManager->createEntity("selectionSphere", Ogre::SceneManager::PT_SPHERE);
-    m_selectionSphere->setMaterialName("selectionSphereWide", "Map");
-    m_selectionSphere->setVisible(false);
-    m_sceneManager->getRootSceneNode()->createChildSceneNode()->attachObject(m_selectionSphere);
-    m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(1,0,0), Ogre::Radian(M_PI/2.), Ogre::Node::TS_LOCAL);
-    m_sphereQuery = m_sceneManager->createSphereQuery(Ogre::Sphere());
+    m_selectionController = new SelectionController(m_sceneManager, m_cameraControl->getCamera(), m_terrainLoader->getTerrainGroup());
+    m_selectionController->switchTo("sphere");
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
@@ -506,10 +308,10 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
     m_renderSystem->update(dt);
 
     // TODO: implement the rotation of the selection sphere as ecs-system
-    if(m_isSelecting)
-    {
-        m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(0,0,1), Ogre::Radian(0.5*dt), Ogre::Node::TS_WORLD);
-    }
+    //if(m_isSelecting)
+    //{
+    //    m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(0,0,1), Ogre::Radian(0.5*dt), Ogre::Node::TS_WORLD);
+    //}
 
     // mInputListeners comes from Base Class ApplicationContextBase
     for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)

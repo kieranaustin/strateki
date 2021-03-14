@@ -15,6 +15,12 @@ namespace ecs
     class SystemManager
     {
     public:
+
+        unsigned long size()
+        {
+            return m_systems.size();
+        }
+
         template <typename TSystem>
         std::shared_ptr<TSystem> registerSystem()
         {

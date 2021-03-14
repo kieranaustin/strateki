@@ -15,6 +15,8 @@ namespace ecs {
     public:
         EntityManager();
 
+        Entity size() const;
+
         Entity createEntity();
 
         Entity createEntity(Signature signature);
@@ -28,16 +30,12 @@ namespace ecs {
         //std::queue<scene::Entity>* getEntities() {return &m_entityPool;}; TODO: return only currently living entities
 
     private:
-        Ogre::SceneManager *m_sceneManager;
-
         // A pool of still available entity ids, i.e., of not-living entities
         std::queue<Entity> m_entityPool{};
         // array of the entities signatures; index of array = entity id
         std::array<Signature, MAX_ENTITIES> m_signatures{};
         // counter for currently living entities
         Entity m_numLivingEntities{};
-
-
     };
 
 }

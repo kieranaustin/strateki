@@ -17,6 +17,11 @@ namespace ecs {
         }
     }
 
+    Entity EntityManager::size() const
+    {
+        return m_numLivingEntities;
+    }
+
     Entity EntityManager::createEntity()
     {
         assert(m_numLivingEntities < ecs::MAX_ENTITIES && "Too many entities, can't create new entity.");

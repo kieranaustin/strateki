@@ -22,6 +22,16 @@ namespace ecs
             m_systemManager = std::make_unique<ecs::SystemManager>();
         }
 
+        Entity sizeEntities()
+        {
+            return m_entityManager->size();
+        }
+
+        unsigned long sizeSystems() const
+        {
+            return m_systemManager->size();
+        }
+
         // entity related functions
         ecs::Entity createEntity()
         {

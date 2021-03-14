@@ -16,7 +16,7 @@ namespace ecs
     {
     public:
 
-        unsigned long size()
+        unsigned long size() const
         {
             return m_systems.size();
         }

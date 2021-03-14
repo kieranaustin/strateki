@@ -22,7 +22,7 @@ namespace ecs
             m_systemManager = std::make_unique<ecs::SystemManager>();
         }
 
-        Entity sizeEntities()
+        Entity sizeEntities() const
         {
             return m_entityManager->size();
         }

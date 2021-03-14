@@ -19,7 +19,10 @@ SelectionController::SelectionController(Ogre::SceneManager *sceneManager, Ogre:
 SelectionController::~SelectionController()
 {
     m_selectionList.clear();
-    delete m_view;
+    for(auto v : m_views)
+    {
+        delete v.second;
+    }
 }
 
 bool SelectionController::switchTo(const Ogre::String &viewType)
@@ -35,12 +38,16 @@ bool SelectionController::switchTo(const Ogre::String &viewType)
         {
             m_view = createView(viewType);
         }
-        if(viewType == "sphere")
+        else if (viewType == "sphere")
         {
             if (m_terrainGroup == nullptr)
                 return false;
 
             m_view = createView(viewType);
+        }
+        else
+        {
+            return false;
         }
     }
     return true;
@@ -121,7 +128,7 @@ void SelectionController::performSelection()
 
     for(const auto obj : result.movables)
     {
-        // reject on ecs::Entity level via "Selectable" component or similar
+        // TODO: reject on ecs::Entity level via "Selectable" component or similar
         if (reject(obj))
             continue;
 

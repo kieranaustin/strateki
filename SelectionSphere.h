@@ -24,7 +24,7 @@ public:
 
 private:
     /*
-     * set set the correct scale from sphere radius - caution: magic number(!?)
+     * set set the correct scale from sphere radius
      */
     Ogre::Vector3 getScale() const
     {
@@ -37,7 +37,7 @@ private:
     Ogre::Real m_radius = 0.0;
 
     // TODO: why does terrainScale with values 8000.0f and 513 work exactly for scaling factor of selection sphere, even when changing TERRAIN_WORLD_SIZE and TERRAIN_SIZE
-    const double m_terrainScale = M_PI * 8000.0f / (double)513; // TODO; magic number
+    const double m_terrainScale = M_PI * 8000.0f / (double)513; // TODO: magic number
     bool m_beginOnTerrain = false;
     Ogre::TerrainGroup * m_terrainGroup;
 

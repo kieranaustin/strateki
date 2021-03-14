@@ -20,7 +20,10 @@ SelectionBox::SelectionBox(Ogre::SceneManager * sceneManager, Ogre::Camera * cam
 }
 
 SelectionBox::~SelectionBox()
-{}
+{
+    m_sceneManager->destroyQuery(m_volumeQuery);
+    m_sceneManager->destroyManualObject(static_cast<Ogre::ManualObject*>(m_view));
+}
 
 bool SelectionBox::beginSelection(const int mouseX, const int mouseY)
 {

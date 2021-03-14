@@ -45,7 +45,7 @@ public:
 private:
     /*
      * create a new selection view
-     * @par viewType "box" or "sphere"
+     * /arg viewType "box" or "sphere"
      * @return true if creating the viewType was successful, else false
      */
     SelectionView * createView(const Ogre::String & viewType);

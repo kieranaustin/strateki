@@ -16,6 +16,8 @@ public:
         , m_camera(camera)
     {}
 
+    virtual ~SelectionView() {}
+
     virtual bool beginSelection(const int mouseX, const int mouseY) = 0;
     virtual bool moveSelection(const int mouseX, const int mouseY) = 0;
     virtual bool endSelection() = 0;

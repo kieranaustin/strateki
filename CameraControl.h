@@ -26,7 +26,11 @@ public:
 
     void makeCoordinateAxes();
     void makeCoordinateAxesRotate();
-    void showCoordinateAxes(bool show);
+    void setVisibleCoordinateAxes(bool show);
+    /*
+     * switch visibility of coordinate axes
+     */
+    void switchVisibleCoordinateAxes();
     void attachLight(Ogre::Light* light);
     void attachTerrainGroup(Ogre::TerrainGroup* terrainGroup);
 

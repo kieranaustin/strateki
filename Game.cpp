@@ -124,6 +124,10 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
     {
         getRoot()->queueEndRendering(true);
     }
+    if (evt.keysym.sym == '.')
+    {
+        m_cameraControl->switchVisibleCoordinateAxes();
+    }
     if (evt.keysym.sym == OgreBites::SDLK_SPACE)
     {
         if (mouseMode == MouseMode::CAMERA)
@@ -287,7 +291,7 @@ void Game::setup(void)
 
     m_camera = m_sceneManager->createCamera("mainCamera");
     m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_terrainLoader->getTerrainGroup());
-    m_cameraControl->showCoordinateAxes(true);
+    m_cameraControl->setVisibleCoordinateAxes(false);
 
     m_entityFactory = new EntityFactory(&aRegister, m_sceneManager, &aAuxIdManager);
 

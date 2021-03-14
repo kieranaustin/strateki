@@ -89,7 +89,7 @@ void CameraControl::attachLight(Ogre::Light *light)
     m_cameraRigNode->attachObject(light);
 }
 
-void CameraControl::showCoordinateAxes(bool show)
+void CameraControl::setVisibleCoordinateAxes(bool show)
 {
     if(m_coordAxes == nullptr)
     {
@@ -102,6 +102,12 @@ void CameraControl::showCoordinateAxes(bool show)
 
     m_coordAxes->setVisible(show);
     m_coordAxesRotate->setVisible(show);
+}
+
+void CameraControl::switchVisibleCoordinateAxes()
+{
+    bool show = !m_coordAxes->isVisible();
+    setVisibleCoordinateAxes(show);
 }
 
 void CameraControl::makeCoordinateAxes()

@@ -16,6 +16,7 @@
 #include "EntityFactory.h"
 #include "SelectionController.h"
 #include "SelectionBox.h"
+#include "AuxiliaryIdManager.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -55,6 +56,7 @@ public:
 private:
     bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
     void simulateCommandSystem(const OgreBites::MouseButtonEvent& evt);
+    void getSelection();
 
 private:
     Ogre::SceneManager* m_sceneManager;
@@ -71,9 +73,13 @@ private:
     std::shared_ptr<ecs::DestinationSystem> m_destinationSystem;
     EntityFactory * m_entityFactory;
 
+    // Auxiliary ID
+    //AuxiliaryIdManager<Ogre::String> m_auxIdManager;
+
     // Selection
     bool m_isSelecting = false;
     SelectionController * m_selectionController;
+    std::list<ecs::Entity> m_selection;
 
     std::vector<ecs::Entity> m_tempEntities;
 };

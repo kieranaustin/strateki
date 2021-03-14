@@ -14,6 +14,7 @@
 
 
 ecs::Register aRegister;
+AuxiliaryIdManager<Ogre::String> aAuxIdManager;
 
 Game::Game() : OgreBites::ApplicationContext("first try")
 {
@@ -83,7 +84,7 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
 
     // choose entity: for now just saved in member variable
 
-    for(auto & entity : m_tempEntities)
+    for(auto & entity : m_selection)
     {
         // set DestinationComponent of entity
         ecs::Destination & destination = aRegister.getComponent<ecs::Destination>(entity);
@@ -97,6 +98,24 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
         movement.velocity.normalise();
         movement.velocity *= 50.0f;
     }
+}
+
+void Game::getSelection()
+{
+    std::list<Ogre::MovableObject*> selectMO = m_selectionController->getSelectionList();
+    m_selection.clear();
+    std::cout << "selection: ";
+    for(auto obj : selectMO)
+    {
+        if (aAuxIdManager.hasAuxId(obj->getName()))
+        {
+            ecs::Entity entity = aAuxIdManager.getEntity(obj->getName());
+            m_selection.push_back(entity);
+            std::cout << "[" << entity << ", " << obj->getName() << "] ";
+        }
+    }
+    std::cout << std::endl;
+    std::cout << "(" << m_selection.size() << " selected)" << std::endl;
 }
 
 bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
@@ -140,7 +159,8 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
     else
     {
         if (evt.button == OgreBites::BUTTON_RIGHT)
-            m_cameraControl->mousePressed(evt);
+            simulateCommandSystem(evt);
+            //m_cameraControl->mousePressed(evt);
 
         if (evt.button != OgreBites::BUTTON_LEFT)
             return false;
@@ -150,6 +170,7 @@ bool Game::mousePressed(const OgreBites::MouseButtonEvent& evt)
         //simulateCommandSystem(evt);
 
         m_isSelecting = true;
+        m_selection.clear();
         return m_selectionController->mousePressed(evt);
     }
     return true;
@@ -174,6 +195,7 @@ bool Game::mouseReleased(const OgreBites::MouseButtonEvent& evt)
     {
         m_selectionController->mouseReleased(evt);
         m_isSelecting = false;
+        getSelection();
         return true;
     }
     else
@@ -267,7 +289,7 @@ void Game::setup(void)
     m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_terrainLoader->getTerrainGroup());
     m_cameraControl->showCoordinateAxes(true);
 
-    m_entityFactory = new EntityFactory(&aRegister, m_sceneManager);
+    m_entityFactory = new EntityFactory(&aRegister, m_sceneManager, &aAuxIdManager);
 
     getRenderWindow()->addViewport(m_camera);
 
@@ -275,6 +297,8 @@ void Game::setup(void)
 
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(-TERRAIN_WORLD_SIZE/2.0f, TERRAIN_WORLD_SIZE/2.0f);
+    std::stringstream loadEnts;
+    loadEnts << "loading entities: ";
     for(int i = 0; i<500; i++)
     {
         float posX = distribution(generator);
@@ -290,11 +314,15 @@ void Game::setup(void)
         {
             curEntity = m_entityFactory->makeLighter(pos);
         }
-        m_tempEntities.push_back(curEntity);
+        loadEnts << "[" << curEntity << ", " << aAuxIdManager.getAuxId(curEntity) << "] ";
     }
+    loadEnts << std::endl << "(" << aRegister.sizeEntities() << " entities loaded)" << std::endl;
+    std::cout << loadEnts.str() << std::flush;
+    std::cout << "number of ecs systems registered: " << aRegister.sizeSystems() << std::endl;
 
     m_selectionController = new SelectionController(m_sceneManager, m_cameraControl->getCamera(), m_terrainLoader->getTerrainGroup());
     m_selectionController->switchTo("sphere");
+
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)

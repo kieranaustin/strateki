@@ -35,7 +35,7 @@ add_library(GameCore
     SelectionView.h
     SelectionBox.h SelectionBox.cpp
     SelectionSphere.h SelectionSphere.cpp
-)
+    AuxiliaryIdManager.h)
 add_library(ecs
     ecs/Definitions.h
     ecs/EntityManager.cpp ecs/EntityManager.h

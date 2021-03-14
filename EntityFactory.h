@@ -6,6 +6,7 @@
 #include "ecs/Definitions.h"
 #include "ecs/components/Components.h"
 #include "ecs/Register.h"
+#include "AuxiliaryIdManager.h"
 
 // code snippet: how to get the animation states strings
 //Ogre::AnimationStateSet* animSet = wolf->getAllAnimationStates();
@@ -18,9 +19,10 @@
 class EntityFactory
 {
 public:
-    EntityFactory(ecs::Register * reg, Ogre::SceneManager * sceneManager)
+    EntityFactory(ecs::Register * reg, Ogre::SceneManager * sceneManager, AuxiliaryIdManager<Ogre::String> * auxIdManager)
         : m_register(reg)
         , m_sceneManager(sceneManager)
+        , m_auxIdManager(auxIdManager)
     {
     }
 
@@ -63,6 +65,8 @@ public:
 
         ecs::TerrainCollision terrainCollision{};
         m_register->addComponent<ecs::TerrainCollision>(ecsLighter, terrainCollision);
+
+        m_auxIdManager->add(ecsLighter, ecsMesh.ID);
 
         return ecsLighter;
     }
@@ -116,11 +120,14 @@ public:
         ecs::TerrainCollision terrainCollision{};
         m_register->addComponent<ecs::TerrainCollision>(ecsRobot, terrainCollision);
 
+        m_auxIdManager->add(ecsRobot, ecsMesh.ID);
+
         return ecsRobot;
     }
 
 private:
     ecs::Register * m_register = nullptr;
     Ogre::SceneManager * m_sceneManager = nullptr;
+    AuxiliaryIdManager<Ogre::String> * m_auxIdManager = nullptr;
 };
 

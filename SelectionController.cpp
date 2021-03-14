@@ -121,6 +121,7 @@ void SelectionController::performSelection()
 
     for(const auto obj : result.movables)
     {
+        // reject on ecs::Entity level via "Selectable" component or similar
         if (reject(obj))
             continue;
 
@@ -128,7 +129,6 @@ void SelectionController::performSelection()
         {
             m_selectionList.push_back(obj);
             obj->getParentSceneNode()->showBoundingBox(true);
-            std::cout << obj->getName() << std::endl;
         }
     }
 }

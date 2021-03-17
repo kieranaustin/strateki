@@ -19,10 +19,23 @@ public:
 
     void setup();
 
-    bool mouseMoved(const OgreBites::MouseMotionEvent& evt);
-    bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt);
-    bool mousePressed(const OgreBites::MouseButtonEvent& evt);
-    bool mouseReleased(const OgreBites::MouseButtonEvent& evt);
+    void frameRendered(const Ogre::FrameEvent& evt) override;
+    bool keyPressed(const OgreBites::KeyboardEvent& evt) override;
+    bool keyReleased(const OgreBites::KeyboardEvent& evt) override;
+    bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
+    bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
+    bool mousePressed(const OgreBites::MouseButtonEvent& evt) override;
+    bool mouseReleased(const OgreBites::MouseButtonEvent& evt) override;
+
+    /*
+     * move camera in 2 dimensions (x,y) along the current view point
+     */
+    void move(const Ogre::Vector2 & delta);
+
+    /*
+     * rotated the camera
+     */
+    void rotate(const Ogre::Radian & deltaYaw, const Ogre::Radian & deltaPitch);
 
     void makeCoordinateAxes();
     void makeCoordinateAxesRotate();
@@ -51,6 +64,12 @@ private:
 
     bool m_bRotateCamera = false;
     bool m_bTranslateCamera = false;
+    bool m_moveForward = false;
+    bool m_moveLeft = false;
+    bool m_moveBackward = false;
+    bool m_moveRight = false;
+    bool m_rotateRight = false;
+    bool m_rotateLeft = false;
 
     float m_lastHeight = 0.0f;
 
@@ -59,6 +78,7 @@ private:
 
     Ogre::ManualObject * m_coordAxes = nullptr;
     Ogre::ManualObject * m_coordAxesRotate = nullptr;
+
 };
 
 #endif //SCENE_CAMERACONTROL_H

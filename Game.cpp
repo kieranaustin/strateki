@@ -128,6 +128,30 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
     {
         m_cameraControl->switchVisibleCoordinateAxes();
     }
+    if (evt.keysym.sym == 'w')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
+    if (evt.keysym.sym == 'a')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
+    if (evt.keysym.sym == 's')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
+    if (evt.keysym.sym == 'd')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
+    if (evt.keysym.sym == 'q')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
+    if (evt.keysym.sym == 'e')
+    {
+        m_cameraControl->keyPressed(evt);
+    }
     if (evt.keysym.sym == OgreBites::SDLK_SPACE)
     {
         if (mouseMode == MouseMode::CAMERA)
@@ -146,6 +170,35 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
     if (evt.keysym.sym == OgreBites::SDLK_KP_2)
     {
         m_selectionController->switchTo("box");
+    }
+    return true;
+}
+
+bool Game::keyReleased(const OgreBites::KeyboardEvent &evt)
+{
+    if (evt.keysym.sym == 'w')
+    {
+        m_cameraControl->keyReleased(evt);
+    }
+    if (evt.keysym.sym == 'a')
+    {
+        m_cameraControl->keyReleased(evt);
+    }
+    if (evt.keysym.sym == 's')
+    {
+        m_cameraControl->keyReleased(evt);
+    }
+    if (evt.keysym.sym == 'd')
+    {
+        m_cameraControl->keyReleased(evt);
+    }
+    if (evt.keysym.sym == 'q')
+    {
+        m_cameraControl->keyReleased(evt);
+    }
+    if (evt.keysym.sym == 'e')
+    {
+        m_cameraControl->keyReleased(evt);
     }
     return true;
 }
@@ -327,6 +380,7 @@ void Game::setup(void)
     m_selectionController = new SelectionController(m_sceneManager, m_cameraControl->getCamera(), m_terrainLoader->getTerrainGroup());
     m_selectionController->switchTo("sphere");
 
+    mouseMode = MouseMode::SELECTION;
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
@@ -344,6 +398,8 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
     //{
     //    m_selectionSphere->getParentSceneNode()->rotate(Ogre::Vector3(0,0,1), Ogre::Radian(0.5*dt), Ogre::Node::TS_WORLD);
     //}
+
+    m_cameraControl->frameRendered(evt);
 
     // mInputListeners comes from Base Class ApplicationContextBase
     for(InputListenerList::iterator it = mInputListeners.begin(); it != mInputListeners.end(); ++it)

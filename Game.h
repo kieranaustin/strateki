@@ -48,6 +48,7 @@ public:
      */
     bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
     bool keyPressed(const OgreBites::KeyboardEvent& evt) override;
+    bool keyReleased(const OgreBites::KeyboardEvent& evt) override;
     bool mousePressed(const OgreBites::MouseButtonEvent& evt) override;
     bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
     bool mouseReleased(const OgreBites::MouseButtonEvent& evt) override;
@@ -82,6 +83,7 @@ private:
     std::list<ecs::Entity> m_selection;
 
     std::vector<ecs::Entity> m_tempEntities;
+
 };
 
 #endif //SCENE_MAIN_H

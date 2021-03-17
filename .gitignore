@@ -1,3 +1,8 @@
 .idea/*
 .vscode/*
 build/*
+
+# Sourcetrail
+*.srctrlbm
+*.srctrldb
+*srctrlprj

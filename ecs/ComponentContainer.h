@@ -58,6 +58,11 @@ namespace ecs
             m_mapIndexToEntity.erase(obsoleteIndex);
         }
 
+        bool hasComponent(ecs::Entity entity)
+        {
+            return (m_mapEntityToIndex.find(entity) != m_mapEntityToIndex.end());
+        }
+
         T& getComponent(ecs::Entity entity)
         {
             assert(entity < ecs::MAX_ENTITIES && "Cannot get components. Entity out of range.");

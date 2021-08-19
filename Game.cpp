@@ -86,17 +86,24 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
 
     for(auto & entity : m_selection)
     {
-        // set DestinationComponent of entity
-        ecs::Destination & destination = aRegister.getComponent<ecs::Destination>(entity);
-        destination.destination = result.position;
+        bool good = aRegister.hasComponent<ecs::Destination>(entity) &&
+                    aRegister.hasComponent<ecs::Movement>(entity) &&
+                    aRegister.hasComponent<ecs::Transform>(entity);
+        std::cout << "entity " << entity << ", good " << good << std::endl;
+        if(good)
+        {
+            // set DestinationComponent of entity
+            ecs::Destination &destination = aRegister.getComponent<ecs::Destination>(entity);
+            destination.destination = result.position;
 
-        // change MovementComponent: velocity to direction of destination
-        ecs::Movement & movement = aRegister.getComponent<ecs::Movement>(entity);
-        ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(entity);
-        movement.velocity = destination.destination - transform.position;
-        movement.velocity.z = 0.0f;
-        movement.velocity.normalise();
-        movement.velocity *= 50.0f;
+            // change MovementComponent: velocity to direction of destination
+            ecs::Movement &movement = aRegister.getComponent<ecs::Movement>(entity);
+            ecs::Transform &transform = aRegister.getComponent<ecs::Transform>(entity);
+            movement.velocity = destination.destination - transform.position;
+            movement.velocity.z = 0.0f;
+            movement.velocity.normalise();
+            movement.velocity *= 50.0f;
+        }
     }
 }
 

@@ -83,6 +83,12 @@ namespace ecs
         }
 
         template <typename T>
+        bool hasComponent(ecs::Entity entity)
+        {
+            return m_componentManager->hasComponent<T>(entity);
+        }
+
+        template <typename T>
         T & getComponent(ecs::Entity entity)
         {
             return m_componentManager->getComponent<T>(entity);

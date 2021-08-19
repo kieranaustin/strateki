@@ -66,6 +66,7 @@ void TerrainLoader::configureTerrainDefaults(Ogre::Light *light)
     //! [configure_lod]
     m_TerrainGlobOpts->setMaxPixelError(8);
     m_TerrainGlobOpts->setCompositeMapDistance(3000);
+    m_TerrainGlobOpts->setCompositeMapDistance(6000);
     //! [configure_lod]
 
     //mTerrainGlobals->setUseRayBoxDistanceCalculation(true);

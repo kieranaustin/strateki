@@ -26,17 +26,50 @@ public:
     {
     }
 
+    ecs::Entity makeTree(const Ogre::Vector3 &pos)
+    {
+        // set up Ogre Entity
+        Ogre::Entity *tree = m_sceneManager->createEntity("tree.mesh");
+        Ogre::SceneNode * treeWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        treeWorldNode->setPosition(pos.x, pos.y, pos.z);
+
+        Ogre::SceneNode * treeLocalNode = treeWorldNode->createChildSceneNode();
+        treeLocalNode->setScale(1,1,1);
+        //treeLocalNode->setScale(.005, .005, .005);
+        treeLocalNode->setPosition(0,0,0);
+        //treeLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        treeLocalNode->attachObject(tree);
+
+        // set up ecs Entity
+        ecs::Entity ecsTree = m_register->createEntity();
+
+        ecs::Mesh ecsMesh;
+        ecsMesh.ID = tree->getName();
+        ecsMesh.file = tree->getMesh()->getName();
+        ecsMesh.hasAnimation = false;
+        ecsMesh.animationState = "";
+        m_register->addComponent<ecs::Mesh>(ecsTree, ecsMesh);
+
+        ecs::Transform transform{};
+        transform.position = treeWorldNode->getPosition();
+        transform.scale = treeLocalNode->getScale();
+        m_register->addComponent<ecs::Transform>(ecsTree, transform);
+
+        m_auxIdManager->add(ecsTree, ecsMesh.ID);
+
+        return ecsTree;
+    }
+
     ecs::Entity makeLighter(const Ogre::Vector3 &pos)
     {
         // set up Ogre Entity
         Ogre::Entity *lighter = m_sceneManager->createEntity("lighter.mesh");
-
         Ogre::SceneNode * lighterWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
         lighterWorldNode->setPosition(pos.x, pos.y, pos.z);
 
         Ogre::SceneNode * lighterLocalNode = lighterWorldNode->createChildSceneNode();
         lighterLocalNode->setScale(2,2,2);
-        lighterLocalNode->setPosition(0,0,6);
+        //lighterLocalNode->setPosition(0,0,6);
         lighterLocalNode->attachObject(lighter);
 
         // set up ecs Entity
@@ -82,7 +115,7 @@ public:
         //Shoot
         //Slump
         //Walk
-        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Walk");
+        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Idle");
         robotAnimation->setEnabled(true);
         robotAnimation->setLoop(true);
 
@@ -125,6 +158,70 @@ public:
         return ecsRobot;
     }
 
+    ecs::Entity makeSinbad(const Ogre::Vector3 &pos)
+    {
+        // set up Ogre Entity
+        Ogre::Entity *sinbad = m_sceneManager->createEntity("Sinbad.mesh");
+
+        // possible animation state strings for sinbad
+        //Dance
+        //DrawSwords
+        //HandsClosed
+        //HandsRelaxed
+        //IdleBase
+        //IdleTop
+        //JumpEnd
+        //JumpLoop
+        //JumpStart
+        //RunBase
+        //RunTop
+        //SliceHorizontal
+        //SliceVertical
+        Ogre::AnimationState *sinbadAnimation = sinbad->getAnimationState("IdleTop");
+        sinbadAnimation->setEnabled(true);
+        sinbadAnimation->setLoop(true);
+
+        Ogre::SceneNode * sinbadWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
+        sinbadWorldNode->setPosition(pos.x, pos.y, pos.z);
+
+        Ogre::SceneNode * sinbadLocalNode = sinbadWorldNode->createChildSceneNode();
+        // rotate entity to be upright in z-direction
+        sinbadLocalNode->setScale(6,6,6);
+        sinbadLocalNode->setPosition(0,0,30);
+        sinbadLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        sinbadLocalNode->rotate(Ogre::Vector3(0, 1, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
+        sinbadLocalNode->attachObject(sinbad);
+
+        // set up ecs Entity
+        ecs::Entity ecsSinbad = m_register->createEntity();
+
+        ecs::Mesh ecsMesh;
+        ecsMesh.ID = sinbad->getName();
+        ecsMesh.file = sinbad->getMesh()->getName();
+        ecsMesh.hasAnimation = true;
+        ecsMesh.animationState = sinbadAnimation->getAnimationName();
+        m_register->addComponent<ecs::Mesh>(ecsSinbad, ecsMesh);
+
+        ecs::Transform transform{};
+        transform.position = sinbadWorldNode->getPosition();
+        m_register->addComponent<ecs::Transform>(ecsSinbad, transform);
+
+        ecs::Movement movement{};
+        m_register->addComponent<ecs::Movement>(ecsSinbad, movement);
+
+        ecs::Destination destination{};
+        m_register->addComponent<ecs::Destination>(ecsSinbad, destination);
+
+        ecs::Gravity gravity{};
+        m_register->addComponent<ecs::Gravity>(ecsSinbad, gravity);
+
+        ecs::TerrainCollision terrainCollision{};
+        m_register->addComponent<ecs::TerrainCollision>(ecsSinbad, terrainCollision);
+
+        m_auxIdManager->add(ecsSinbad, ecsMesh.ID);
+
+        return ecsSinbad;
+    }
 private:
     ecs::Register * m_register = nullptr;
     Ogre::SceneManager * m_sceneManager = nullptr;

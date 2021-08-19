@@ -13,8 +13,8 @@
 // the following can be used to load one terrain multiple times in a grid-like pattern
 #define TERRAIN_PAGE_MIN_X 0
 #define TERRAIN_PAGE_MIN_Y 0
-#define TERRAIN_PAGE_MAX_X 1
-#define TERRAIN_PAGE_MAX_Y 1
+#define TERRAIN_PAGE_MAX_X 0
+#define TERRAIN_PAGE_MAX_Y 0
 
 class TerrainLoader {
 

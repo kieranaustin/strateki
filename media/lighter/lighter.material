@@ -1,0 +1,84 @@
+
+material lighter/base
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0 0 0 1
+			specular 0.5 0.5 0.5 1 0
+		}
+
+	}
+
+}
+
+material lighter/foot
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0.8 0.8 0.8 1
+			specular 0.5 0.5 0.5 1 147.866
+		}
+
+	}
+
+}
+
+material lighter/head
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0.171203 0.144303 0.155882 1
+			specular 0.5 0.5 0.5 1 400
+		}
+
+	}
+
+}
+
+material lighter/knob
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0 0 0 1
+			specular 0.5 0.5 0.5 1 56.25
+		}
+
+	}
+
+}
+
+material lighter/wheel
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0.193024 0.193024 0.193024 1
+			specular 0.5 0.5 0.5 1 87.2749
+		}
+
+	}
+
+}
+
+material lighter/wheelholder
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0 0 0 1
+			specular 0.5 0.5 0.5 1 225
+		}
+
+	}
+
+}

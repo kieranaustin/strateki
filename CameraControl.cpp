@@ -21,6 +21,7 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre
 
     float max = m_TerrainWorldSize/2.025f;
     m_cameraRigNode->setPosition(max, max, m_TerrainGroup->getHeightAtWorldPosition(max,max,0));
+    m_cameraRigNode->setPosition(0.0f, -3.0f*max/4.0f, m_TerrainGroup->getHeightAtWorldPosition(0.0f,-3.0f*max/4.0f,0));
 }
 
 CameraControl::~CameraControl()
@@ -45,10 +46,11 @@ void CameraControl::setup()
     m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
     m_cameraRigNode->setPosition(0, 0, 0);
     m_cameraRigRotateNode = m_cameraRigNode->createChildSceneNode();
-    m_cameraRigRotateNode->roll(Ogre::Radian(3.*M_PI/4.));
-    m_cameraRigRotateNode->pitch(Ogre::Radian(-M_PI / 10.0f));
+    //m_cameraRigRotateNode->roll(Ogre::Radian(3.*M_PI/4.));
+    //m_cameraRigRotateNode->roll(Ogre::Radian(M_PI));
+    m_cameraRigRotateNode->pitch(Ogre::Radian(-M_PI / 8.0f));
 
-    m_cameraNode = m_cameraRigRotateNode->createChildSceneNode(Ogre::Vector3(0, -400, 0));
+    m_cameraNode = m_cameraRigRotateNode->createChildSceneNode(Ogre::Vector3(0, -3000, 0));
     m_cameraNode->lookAt(Ogre::Vector3(0, 0, 0), Ogre::Node::TS_PARENT);
     m_cameraNode->attachObject(m_camera);
 
@@ -62,7 +64,7 @@ void CameraControl::setup()
     Ogre::SceneNode *lightNodeFront = m_cameraNode->createChildSceneNode();
     lightNodeFront->setPosition(0, 0, 0);
     lightNodeFront->setDirection(lightdir);
-    lightNodeFront->attachObject(camLightFront);
+    //lightNodeFront->attachObject(camLightFront);
 
     Ogre::Light* camLightBack = m_sceneManager->createLight("CameraLightBack");
     camLightBack->setType(Ogre::Light::LT_SPOTLIGHT);
@@ -75,7 +77,7 @@ void CameraControl::setup()
     Ogre::SceneNode *lightNodeBack = m_cameraRigNode->createChildSceneNode();
     lightNodeBack->setPosition(0, 100, 0);
     lightNodeBack->setDirection(lightdir);
-    lightNodeBack->attachObject(camLightBack);
+    //lightNodeBack->attachObject(camLightBack);
 }
 
 void CameraControl::attachTerrainGroup(Ogre::TerrainGroup *terrainGroup)
@@ -335,7 +337,7 @@ bool CameraControl::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
     float scaleFactor = 1.0 + evt.y /10.0f;
     Ogre::Vector3 newPos = scaleFactor * m_cameraNode->getPosition();
     float distance =  -newPos.y;
-    if (distance > 1.0f && distance < m_TerrainWorldSize/1.33f)
+    if (distance > 1.0f && distance < m_TerrainWorldSize)
     {
         m_cameraNode->setPosition(newPos);
         handleCollisionWithTerrain();

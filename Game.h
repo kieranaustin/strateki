@@ -21,7 +21,7 @@
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
 
-#define TERRAIN_WORLD_SIZE 8000.0f
+#define TERRAIN_WORLD_SIZE 6000.0f
 #define TERRAIN_SIZE 513
 //static double aTerrainScale = M_PI * TERRAIN_WORLD_SIZE / (double)TERRAIN_SIZE;
 static double aTerrainScale = M_PI * 8000.0f / (double)513;
@@ -41,6 +41,8 @@ public:
     ~Game();
 
     void setup(void) override;
+    void setupECS(void);
+    void setupEntities(void);
 
     /*
      * gets called in main loop from root before frameEnded and after frameStarted

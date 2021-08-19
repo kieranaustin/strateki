@@ -1,0 +1,38 @@
+
+material tree/bark
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0.6784 0.5216 0.4353 1
+			specular 0 0 0 1 10
+
+			texture_unit
+			{
+				texture bark.jpg
+			}
+		}
+
+	}
+
+}
+
+material tree/leaf
+{
+	technique
+	{
+		pass 
+		{
+			diffuse 0.5216 0.7216 0.5294 1
+			specular 0 0 0 1 10
+
+			texture_unit
+			{
+				texture leaf.jpg
+			}
+		}
+
+	}
+
+}

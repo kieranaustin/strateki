@@ -277,6 +277,34 @@ void Game::setup(void)
 
     m_sceneManager = root->createSceneManager();
 
+    setupECS();
+
+    m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
+    m_terrainLoader->loadTerrain();
+
+    m_terrainCollisionSystem->init(m_terrainLoader->getTerrainGroup());
+    m_gravitySystem->init(m_terrainLoader->getTerrainGroup());
+
+    m_camera = m_sceneManager->createCamera("mainCamera");
+    m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_terrainLoader->getTerrainGroup());
+    m_cameraControl->setVisibleCoordinateAxes(false);
+
+    m_entityFactory = new EntityFactory(&aRegister, m_sceneManager, &aAuxIdManager);
+
+    getRenderWindow()->addViewport(m_camera);
+
+    addInputListener(this);
+
+    setupEntities();
+
+    m_selectionController = new SelectionController(m_sceneManager, m_cameraControl->getCamera(), m_terrainLoader->getTerrainGroup());
+    m_selectionController->switchTo("sphere");
+
+    mouseMode = MouseMode::CAMERA;
+}
+
+void Game::setupECS()
+{
     aRegister.init();
 
     aRegister.registerComponentType<ecs::Transform>();
@@ -335,52 +363,53 @@ void Game::setup(void)
         signature.set(componentType, true);
         aRegister.setSystemSignature<ecs::DestinationSystem>(signature);
     }
+}
 
-    m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
-    m_terrainLoader->loadTerrain();
-
-    m_terrainCollisionSystem->init(m_terrainLoader->getTerrainGroup());
-    m_gravitySystem->init(m_terrainLoader->getTerrainGroup());
-
-    m_camera = m_sceneManager->createCamera("mainCamera");
-    m_cameraControl = new CameraControl(m_camera, m_sceneManager, m_terrainLoader->getTerrainGroup());
-    m_cameraControl->setVisibleCoordinateAxes(false);
-
-    m_entityFactory = new EntityFactory(&aRegister, m_sceneManager, &aAuxIdManager);
-
-    getRenderWindow()->addViewport(m_camera);
-
-    addInputListener(this);
-
+void Game::setupEntities()
+{
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(-TERRAIN_WORLD_SIZE/2.0f, TERRAIN_WORLD_SIZE/2.0f);
+    std::uniform_real_distribution<float> distribution_strip(-TERRAIN_WORLD_SIZE/2.0f, -TERRAIN_WORLD_SIZE/6.0f);
+    std::uniform_real_distribution<float> distribution_height(300, 1000);
     std::stringstream loadEnts;
     loadEnts << "loading entities: ";
+    int c = 0;
     for(int i = 0; i<500; i++)
     {
-        float posX = distribution(generator);
+        float posX = distribution_strip(generator);
         float posY = distribution(generator);
-        float height = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(posX,posY,0);
-        Ogre::Vector3 pos{posX,posY,height*3.0f};
+        float posZ = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(posX,posY,0);
+        float height = distribution_height(generator);
+        Ogre::Vector3 pos;
         ecs::Entity curEntity;
-        if (i%2==0)
+        if (c==0)
         {
+            posZ = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(-posX,posY,0);
+            pos = {-posX, posY, posZ+height};
             curEntity = m_entityFactory->makeRobot(pos);
+            c++;
+        }
+        else if (c==1)
+        {
+            pos = {posX, posY, posZ+height};
+            curEntity = m_entityFactory->makeSinbad(pos);
+            Ogre::Quaternion & rot = aRegister.getComponent<ecs::Transform>(curEntity).rotation;
+            rot = Ogre::Vector3::UNIT_X.getRotationTo(Ogre::Vector3::UNIT_X);
+            c++;
         }
         else
         {
-            curEntity = m_entityFactory->makeLighter(pos);
+            posX = distribution(generator);
+            posZ = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(posX,posY,0);
+            pos = {posX, posY, posZ};
+            curEntity = m_entityFactory->makeTree(pos);
+            c=0;
         }
         loadEnts << "[" << curEntity << ", " << aAuxIdManager.getAuxId(curEntity) << "] ";
     }
     loadEnts << std::endl << "(" << aRegister.sizeEntities() << " entities loaded)" << std::endl;
     std::cout << loadEnts.str() << std::flush;
     std::cout << "number of ecs systems registered: " << aRegister.sizeSystems() << std::endl;
-
-    m_selectionController = new SelectionController(m_sceneManager, m_cameraControl->getCamera(), m_terrainLoader->getTerrainGroup());
-    m_selectionController->switchTo("sphere");
-
-    mouseMode = MouseMode::SELECTION;
 }
 
 bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)

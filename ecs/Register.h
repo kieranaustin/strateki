@@ -85,7 +85,8 @@ namespace ecs
         template <typename T>
         bool hasComponent(ecs::Entity entity)
         {
-            return m_componentManager->hasComponent<T>(entity);
+            ComponentType type = m_componentManager->getComponentType<T>();
+            return m_entityManager->getSignature(entity)[type];
         }
 
         template <typename T>

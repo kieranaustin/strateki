@@ -79,10 +79,9 @@ namespace ecs
         }
 
     private:
-        // TODO: why not use std::map instead?
         std::array<T, ecs::MAX_ENTITIES> m_components{};
-        std::map<ecs::Entity, std::size_t> m_mapEntityToIndex{};
-        std::map<std::size_t, ecs::Entity> m_mapIndexToEntity{};
+        std::unordered_map<ecs::Entity, std::size_t> m_mapEntityToIndex{};
+        std::unordered_map<std::size_t, ecs::Entity> m_mapIndexToEntity{};
         size_t m_numComponents{};
     };
 }

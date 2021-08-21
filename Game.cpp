@@ -8,6 +8,7 @@
 #include "ecs/Register.h"
 #include "ecs/components/Components.h"
 #include "ecs/systems/RenderSystem.h"
+#include <cmath>
 
 //#define PAGING
 //#define DEBUG
@@ -82,27 +83,62 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     if (not result.hit)
         return;
 
-    // choose entity: for now just saved in member variable
+    // make entities choose a formation upon arrival at destination
+    // for now: square formation
+    uint numEntities = m_selection.size();
+    float root = std::sqrt((float)numEntities);
+    int sideLength = std::ceil(root);
+    Ogre::Real dist = 50.0f;
 
+    int min = -std::floor(sideLength/2.0f);
+    int max = min + sideLength;
+
+    // shift destination, if outside of Terrain
+    Ogre::Vector3 dest = result.position;
+    Ogre::Vector3 shift{0,0,0};
+    if (dest.x + (float)max*dist > (float)TERRAIN_WORLD_SIZE/2.0f)
+    {
+        shift.x = -(float)max*dist;
+    }
+    if (dest.x + (float)min*dist < -(float)TERRAIN_WORLD_SIZE/2.0f)
+    {
+        shift.x = -(float)min*dist;
+    }
+    if (dest.y + (float)max*dist > (float)TERRAIN_WORLD_SIZE/2.0f)
+    {
+        shift.y = -(float)max*dist;
+    }
+    if (dest.y + (float)min*dist < -(float)TERRAIN_WORLD_SIZE/2.0f)
+    {
+        shift.y = -(float)min*dist;
+    }
+    dest += shift;
+
+    // choose entity: for now just saved in member variable
+    int x = min, y = min;
     for(auto & entity : m_selection)
     {
-        bool good = aRegister.hasComponent<ecs::Destination>(entity) &&
-                    aRegister.hasComponent<ecs::Movement>(entity) &&
-                    aRegister.hasComponent<ecs::Transform>(entity);
-        std::cout << "entity " << entity << ", good " << good << std::endl;
-        if(good)
+        bool hasComponents = aRegister.hasComponent<ecs::Movement>(entity) &&
+                             aRegister.hasComponent<ecs::Transform>(entity);
+        if(hasComponents)
         {
-            // set DestinationComponent of entity
-            ecs::Destination &destination = aRegister.getComponent<ecs::Destination>(entity);
-            destination.destination = result.position;
+            Ogre::Vector3 finalDest = {dest.x + (float)x*dist,
+                                       dest.y + (float)y*dist,
+                                       0.0};
+            finalDest.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(finalDest);
 
-            // change MovementComponent: velocity to direction of destination
-            ecs::Movement &movement = aRegister.getComponent<ecs::Movement>(entity);
-            ecs::Transform &transform = aRegister.getComponent<ecs::Transform>(entity);
-            movement.velocity = destination.destination - transform.position;
-            movement.velocity.z = 0.0f;
-            movement.velocity.normalise();
-            movement.velocity *= 50.0f;
+            // set DestinationComponent of entity
+            ecs::Movement & mov = aRegister.getComponent<ecs::Movement>(entity);
+            //mov.destination = result.position;
+            mov.destination = finalDest;
+            mov.hasArrived = false;
+        }
+        // cycle through square slots
+        x++;
+        if(x>=max)
+        {
+            y++;
+            x=min;
         }
     }
 }
@@ -279,7 +315,7 @@ void Game::setup(void)
 
     Ogre::Root* root = getRoot();
 
-    //ConfigDialog* configDialog = OgreBites::getNativeConfigDialog();
+    //Ogre::ConfigDialog* configDialog = OgreBites::getNativeConfigDialog();
     //root->showConfigDialog(configDialog);
 
     m_sceneManager = root->createSceneManager();
@@ -316,7 +352,6 @@ void Game::setupECS()
 
     aRegister.registerComponentType<ecs::Transform>();
     aRegister.registerComponentType<ecs::Movement>();
-    aRegister.registerComponentType<ecs::Destination>();
     aRegister.registerComponentType<ecs::Gravity>();
     aRegister.registerComponentType<ecs::TerrainCollision>();
     aRegister.registerComponentType<ecs::Mesh>();
@@ -361,15 +396,16 @@ void Game::setupECS()
         aRegister.setSystemSignature<ecs::GravitySystem>(signature);
     }
 
-    m_destinationSystem = aRegister.registerSystem<ecs::DestinationSystem>();
+    m_collisionSystem = aRegister.registerSystem<ecs::CollisionSystem>();
     {
         ecs::Signature signature{};
-        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Destination>();
+        ecs::ComponentType componentType = aRegister.getComponentType<ecs::Movement>();
         signature.set(componentType, true);
         componentType = aRegister.getComponentType<ecs::Transform>();
         signature.set(componentType, true);
-        aRegister.setSystemSignature<ecs::DestinationSystem>(signature);
+        aRegister.setSystemSignature<ecs::CollisionSystem>(signature);
     }
+    m_collisionSystem->init(m_sceneManager);
 }
 
 void Game::setupEntities()
@@ -425,7 +461,7 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
     m_gravitySystem->update(dt);
     m_movementSystem->update(dt);
-    m_destinationSystem->update(dt);
+    m_collisionSystem->update(dt);
     m_terrainCollisionSystem->update(dt);
     m_renderSystem->update(dt);
 

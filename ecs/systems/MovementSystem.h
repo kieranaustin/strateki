@@ -21,20 +21,39 @@ namespace ecs
         {
             for (auto &entity : m_entities)
             {
-                Ogre::Vector3 & vel = aRegister.getComponent<ecs::Movement>(entity).velocity;
-                Ogre::Vector3 & acc = aRegister.getComponent<ecs::Movement>(entity).acceleration;
-                Ogre::Quaternion & rot = aRegister.getComponent<ecs::Transform>(entity).rotation;
-                Ogre::Vector3 & pos = aRegister.getComponent<ecs::Transform>(entity).position;
+                ecs::Movement & mov = aRegister.getComponent<ecs::Movement>(entity);
+                if (mov.hasArrived) continue;
+
+                ecs::Transform & trans = aRegister.getComponent<ecs::Transform>(entity);
+
+                Ogre::Real squaredDistance = mov.destination.squaredDistance(trans.position);
+                bool stopMoving = (squaredDistance < 100.0 || mov.tries > 200);
+                if (stopMoving)
+                {
+                    mov.hasArrived = true;
+                    mov.tries = 0;
+                    mov.velocity = Ogre::Vector3(0,0,0);
+                    continue;
+                }
 
                 // semi-implicit Euler integration
                 // TODO: maybe use Verlet integration or other
-                vel += acc*dt;
-                pos += vel * dt;
-
-                if (vel.length() > 0.0f)
+                Ogre::Vector3 dir = (mov.destination - trans.position).normalisedCopy();
+                dir.z = 0.0f;
+                Ogre::Real speed = mov.velocity.length() + mov.acceleration*dt;
+                mov.velocity = speed*dir;
+                mov.velocity.z = 0.0f;
+                if(speed > mov.MAX_VELOCITY)
                 {
-                    rot = Ogre::Vector3::UNIT_X.getRotationTo(vel);
+                    mov.velocity = mov.velocity.normalisedCopy()*mov.MAX_VELOCITY;
                 }
+                trans.position += mov.velocity * dt;
+
+                if (speed > 0.0f)
+                {
+                    trans.rotation = Ogre::Vector3::UNIT_X.getRotationTo(mov.velocity);
+                }
+
             }
         }
     };

@@ -12,7 +12,7 @@
 #include "ecs/systems/MovementSystem.h"
 #include "ecs/systems/TerrainCollisionSystem.h"
 #include "ecs/systems/GravitySystem.h"
-#include "ecs/systems/DestinationSystem.h"
+#include "ecs/systems/CollisionSystem.h"
 #include "EntityFactory.h"
 #include "SelectionController.h"
 #include "SelectionBox.h"
@@ -73,7 +73,7 @@ private:
     std::shared_ptr<ecs::MovementSystem> m_movementSystem;
     std::shared_ptr<ecs::TerrainCollisionSystem> m_terrainCollisionSystem;
     std::shared_ptr<ecs::GravitySystem> m_gravitySystem;
-    std::shared_ptr<ecs::DestinationSystem> m_destinationSystem;
+    std::shared_ptr<ecs::CollisionSystem> m_collisionSystem;
     EntityFactory * m_entityFactory;
 
     // Auxiliary ID

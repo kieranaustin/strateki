@@ -88,10 +88,9 @@ public:
         m_register->addComponent<ecs::Transform>(ecsLighter, transform);
 
         ecs::Movement movement{};
+        movement.acceleration = 50.0f;
+        movement.MAX_VELOCITY = 50.0f;
         m_register->addComponent<ecs::Movement>(ecsLighter, movement);
-
-        ecs::Destination destination{};
-        m_register->addComponent<ecs::Destination>(ecsLighter, destination);
 
         ecs::Gravity gravity{};
         m_register->addComponent<ecs::Gravity>(ecsLighter, gravity);
@@ -142,10 +141,9 @@ public:
         m_register->addComponent<ecs::Transform>(ecsRobot, transform);
 
         ecs::Movement movement{};
+        movement.acceleration = 100.0f;
+        movement.MAX_VELOCITY = 200.0f;
         m_register->addComponent<ecs::Movement>(ecsRobot, movement);
-
-        ecs::Destination destination{};
-        m_register->addComponent<ecs::Destination>(ecsRobot, destination);
 
         ecs::Gravity gravity{};
         m_register->addComponent<ecs::Gravity>(ecsRobot, gravity);
@@ -207,10 +205,9 @@ public:
         m_register->addComponent<ecs::Transform>(ecsSinbad, transform);
 
         ecs::Movement movement{};
+        movement.acceleration = 100.0f;
+        movement.MAX_VELOCITY = 150.0f;
         m_register->addComponent<ecs::Movement>(ecsSinbad, movement);
-
-        ecs::Destination destination{};
-        m_register->addComponent<ecs::Destination>(ecsSinbad, destination);
 
         ecs::Gravity gravity{};
         m_register->addComponent<ecs::Gravity>(ecsSinbad, gravity);

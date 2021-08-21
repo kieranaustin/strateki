@@ -19,11 +19,11 @@ namespace ecs
     struct Movement
     {
         Ogre::Vector3 velocity{0,0,0};
-        Ogre::Vector3 acceleration{0,0,0};
-    };
+        Ogre::Real acceleration{0.0f};
+        Ogre::Real MAX_VELOCITY{0.0f};
 
-    struct Destination
-    {
+        bool hasArrived{true};
+        uint tries{0};
         Ogre::Vector3 destination{0,0,0};
     };
 

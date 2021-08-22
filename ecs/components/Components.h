@@ -29,7 +29,7 @@ namespace ecs
 
     struct Gravity
     {
-        Ogre::Vector3 acceleration{0.0, 0.0, -9.81};
+        Ogre::Vector3 acceleration{0.0, 0.0, -98.1};
         Ogre::Vector3 velocity{0,0,0};
     };
 

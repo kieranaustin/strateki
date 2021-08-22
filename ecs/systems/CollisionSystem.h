@@ -38,8 +38,8 @@ namespace ecs
                 {
                     Ogre::Vector3 & neighPos = aRegister.getComponent<ecs::Transform>(neighbour).position;
                     Ogre::Vector3 & neighVel = aRegister.getComponent<ecs::Movement>(neighbour).velocity;
-                    Ogre::Vector3 nextPos = trans.position + mov.velocity*dt;
                     Ogre::Vector3 diffPos = neighPos - trans.position;
+                    diffPos.z = 0.0f;
                     bool collided = (diffPos.squaredLength() < 1000.0f && mov.velocity.directionEquals(diffPos, Ogre::Radian(Ogre::Degree(10))));
                     if (collided)
                     {

@@ -75,8 +75,8 @@ bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
 void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
 {
     // get destination on terrain from mouse click
-    Ogre::Real mousePosNormX = (float)evt.x / m_cameraControl->getCamera()->getViewport()->getActualWidth();
-    Ogre::Real mousePosNormY = (float)evt.y / m_cameraControl->getCamera()->getViewport()->getActualHeight();
+    Ogre::Real mousePosNormX = (float)evt.x / (float)m_cameraControl->getCamera()->getViewport()->getActualWidth();
+    Ogre::Real mousePosNormY = (float)evt.y / (float)m_cameraControl->getCamera()->getViewport()->getActualHeight();
     Ogre::Ray mouseRay = m_cameraControl->getCamera()->getCameraToViewportRay(mousePosNormX, mousePosNormY);
     Ogre::TerrainGroup::RayResult result = m_terrainLoader->getTerrainGroup()->rayIntersects(mouseRay);
 
@@ -90,27 +90,31 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     int sideLength = std::ceil(root);
     Ogre::Real dist = 50.0f;
 
-    int min = -std::floor(sideLength/2.0f);
+    int min = -(int)std::floor((float)sideLength/2.0f);
     int max = min + sideLength;
 
-    // shift destination, if outside of Terrain
     Ogre::Vector3 dest = result.position;
+    // shift to center of square formation
+    dest   += sideLength%2==0 ? 0.5*dist : 0.0;
+    dest.y += numEntities <= sideLength*(sideLength-1) ? 0.5*dist : 0.0;
+    // shift destination, if outside of Terrain
     Ogre::Vector3 shift{0,0,0};
-    if (dest.x + (float)max*dist > (float)TERRAIN_WORLD_SIZE/2.0f)
+    float worldEdge = (0.99f) * (float)TERRAIN_WORLD_SIZE / 2.0f;
+    if (dest.x + (float)(max-1)*dist > worldEdge)
     {
-        shift.x = -(float)max*dist;
+        shift.x = -((dest.x + (float)(max-1)*dist) - worldEdge);
     }
-    if (dest.x + (float)min*dist < -(float)TERRAIN_WORLD_SIZE/2.0f)
+    if (dest.x + (float)min*dist < -worldEdge)
     {
-        shift.x = -(float)min*dist;
+        shift.x = -((dest.x + (float)min*dist) + worldEdge);
     }
-    if (dest.y + (float)max*dist > (float)TERRAIN_WORLD_SIZE/2.0f)
+    if (dest.y + (float)(max-1)*dist > worldEdge)
     {
-        shift.y = -(float)max*dist;
+        shift.y = -((dest.y + (float)(max-1)*dist) - worldEdge);
     }
-    if (dest.y + (float)min*dist < -(float)TERRAIN_WORLD_SIZE/2.0f)
+    if (dest.y + (float)min*dist < -worldEdge)
     {
-        shift.y = -(float)min*dist;
+        shift.y = -((dest.y + (float)min*dist) + worldEdge);
     }
     dest += shift;
 
@@ -124,12 +128,10 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
         {
             Ogre::Vector3 finalDest = {dest.x + (float)x*dist,
                                        dest.y + (float)y*dist,
-                                       0.0};
-            finalDest.z = m_terrainLoader->getTerrainGroup()->getHeightAtWorldPosition(finalDest);
+                                       0.0f};
 
             // set DestinationComponent of entity
-            ecs::Movement & mov = aRegister.getComponent<ecs::Movement>(entity);
-            //mov.destination = result.position;
+            auto & mov = aRegister.getComponent<ecs::Movement>(entity);
             mov.destination = finalDest;
             mov.hasArrived = false;
         }

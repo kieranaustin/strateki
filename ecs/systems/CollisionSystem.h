@@ -44,9 +44,12 @@ namespace ecs
                     if (collided)
                     {
                         trans.position -= 0.5*mov.velocity*dt;
-                        trans.rotation = Ogre::Vector3::UNIT_X.getRotationTo(mov.velocity);
-                        mov.velocity -= 15.0f*diffPos.perpendicular().normalisedCopy();
+                        Ogre::Vector3 diversion = 15.0f*diffPos.perpendicular().normalisedCopy();
+                        diversion.y = 0.0f;
+                        mov.velocity -= diversion;
                         mov.velocity.z = 0.0f;
+                        Ogre::Radian angle = Ogre::Vector3::UNIT_X.xy().angleTo(mov.velocity.xy());
+                        trans.rotation = Ogre::Quaternion(angle, Ogre::Vector3::UNIT_Z);
                         mov.tries++;
                     }
                     else

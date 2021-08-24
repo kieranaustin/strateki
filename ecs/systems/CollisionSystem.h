@@ -43,11 +43,13 @@ namespace ecs
                     bool collided = (diffPos.squaredLength() < 1000.0f && mov.velocity.directionEquals(diffPos, Ogre::Radian(Ogre::Degree(10))));
                     if (collided)
                     {
+                        Ogre::Real speed = mov.velocity.length();
+                        Ogre::Vector3 dir = mov.velocity.normalisedCopy();
                         trans.position -= 0.5*mov.velocity*dt;
-                        Ogre::Vector3 diversion = 15.0f*diffPos.perpendicular().normalisedCopy();
+                        Ogre::Vector3 diversion = dir.perpendicular();
                         diversion.y = 0.0f;
-                        mov.velocity -= diversion;
-                        mov.velocity.z = 0.0f;
+                        dir += diversion.normalisedCopy();
+                        mov.velocity = speed*dir;
                         Ogre::Radian angle = Ogre::Vector3::UNIT_X.xy().angleTo(mov.velocity.xy());
                         trans.rotation = Ogre::Quaternion(angle, Ogre::Vector3::UNIT_Z);
                         mov.tries++;

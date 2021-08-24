@@ -6,6 +6,7 @@
 #define SCENE_COMPONENTS_H
 
 #include <Ogre.h>
+#include <forward_list>
 
 namespace ecs
 {
@@ -43,7 +44,13 @@ namespace ecs
         Ogre::String ID{""};
         Ogre::String file{""};
         bool hasAnimation{false};
-        Ogre::String animationState{""};
+        std::unordered_map<std::string, std::forward_list<Ogre::String> > animationStates{{"Idle", {}}
+                                                                                        , {"Walk", {}}
+                                                                                        , {"Run", {}}
+                                                                                        , {"Fight", {}}
+                                                                                        , {"Die", {}}
+                                                                                        , {"Jump", {}}};
+        std::unordered_set<std::string> activeAnimations{};
         /* TODO: maybe save pointer to worldNode of object, such that it is easier to get the node to change position and rotation in space
            and avoid having to sort out ...->getParentSceneNode()->getParentSceneNode()->... in RenderSystem
         */

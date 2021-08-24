@@ -123,17 +123,21 @@ void Game::simulateCommandSystem(const OgreBites::MouseButtonEvent &evt)
     for(auto & entity : m_selection)
     {
         bool hasComponents = aRegister.hasComponent<ecs::Movement>(entity) &&
-                             aRegister.hasComponent<ecs::Transform>(entity);
+                             aRegister.hasComponent<ecs::Transform>(entity) &&
+                             aRegister.hasComponent<ecs::Mesh>(entity);
         if(hasComponents)
         {
             Ogre::Vector3 finalDest = {dest.x + (float)x*dist,
                                        dest.y + (float)y*dist,
                                        0.0f};
 
-            // set DestinationComponent of entity
+            // set DestinationComponent of entity and start moving
             auto & mov = aRegister.getComponent<ecs::Movement>(entity);
             mov.destination = finalDest;
             mov.hasArrived = false;
+            auto & mesh = aRegister.getComponent<ecs::Mesh>(entity);
+            mesh.activeAnimations.erase("Idle");
+            mesh.activeAnimations.insert("Run");
         }
         // cycle through square slots
         x++;
@@ -373,6 +377,8 @@ void Game::setupECS()
         ecs::ComponentType componentType = aRegister.getComponentType<ecs::Transform>();
         signature.set(componentType, true);
         componentType = aRegister.getComponentType<ecs::Movement>();
+        signature.set(componentType, true);
+        componentType = aRegister.getComponentType<ecs::Mesh>();
         signature.set(componentType, true);
         aRegister.setSystemSignature<ecs::MovementSystem>(signature);
     }

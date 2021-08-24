@@ -44,7 +44,7 @@ namespace ecs
         {
             for(auto & entity : m_entities)
             {
-                const ecs::Mesh & mesh = aRegister.getComponent<ecs::Mesh>(entity);
+                ecs::Mesh & mesh = aRegister.getComponent<ecs::Mesh>(entity);
                 const ecs::Transform & transform = aRegister.getComponent<ecs::Transform>(entity);
 
                 m_sceneManager->getEntity(mesh.ID)->getParentSceneNode()->getParentSceneNode()->setPosition(transform.position);
@@ -52,7 +52,29 @@ namespace ecs
 
                 if(mesh.hasAnimation)
                 {
-                    m_sceneManager->getEntity(mesh.ID)->getAnimationState(mesh.animationState)->addTime(dt);
+                    // stop all animations
+                    for(auto & animState : mesh.animationStates)
+                    {
+                        for (auto &animation: animState.second)
+                        {
+                            if (m_sceneManager->getEntity(mesh.ID)->hasAnimationState(animation))
+                            {
+                                m_sceneManager->getEntity(mesh.ID)->getAnimationState(animation)->setEnabled(false);
+                            }
+                        }
+                    }
+                    // start all activated animations
+                    for(auto & animState : mesh.activeAnimations)
+                    {
+                        for (auto &animation : mesh.animationStates[animState])
+                        {
+                            if (m_sceneManager->getEntity(mesh.ID)->hasAnimationState(animation))
+                            {
+                                m_sceneManager->getEntity(mesh.ID)->getAnimationState(animation)->setEnabled(true);
+                                m_sceneManager->getEntity(mesh.ID)->getAnimationState(animation)->addTime(dt);
+                            }
+                        }
+                    }
                 }
             }
         }

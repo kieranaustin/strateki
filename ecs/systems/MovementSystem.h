@@ -24,13 +24,17 @@ namespace ecs
                 auto & mov = aRegister.getComponent<ecs::Movement>(entity);
                 if (mov.hasArrived) continue;
 
+                auto & mesh = aRegister.getComponent<ecs::Mesh>(entity);
                 auto & trans = aRegister.getComponent<ecs::Transform>(entity);
                 Ogre::Real squaredDistance = mov.destination.xy().squaredDistance(trans.position.xy());
                 if (squaredDistance < 100.0 || mov.tries > 200)
                 {
+                    //stop moving
                     mov.hasArrived = true;
                     mov.tries = 0;
                     mov.velocity = Ogre::Vector3::ZERO;
+                    mesh.activeAnimations.erase("Run");
+                    mesh.activeAnimations.insert("Idle");
                     continue;
                 }
 

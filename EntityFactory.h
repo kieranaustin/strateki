@@ -35,9 +35,7 @@ public:
 
         Ogre::SceneNode * treeLocalNode = treeWorldNode->createChildSceneNode();
         treeLocalNode->setScale(1,1,1);
-        //treeLocalNode->setScale(.005, .005, .005);
         treeLocalNode->setPosition(0,0,0);
-        //treeLocalNode->rotate(Ogre::Vector3(1, 0, 0), Ogre::Degree(90), Ogre::Node::TS_LOCAL);
         treeLocalNode->attachObject(tree);
 
         // set up ecs Entity
@@ -47,7 +45,6 @@ public:
         ecsMesh.ID = tree->getName();
         ecsMesh.file = tree->getMesh()->getName();
         ecsMesh.hasAnimation = false;
-        ecsMesh.animationState = "";
         m_register->addComponent<ecs::Mesh>(ecsTree, ecsMesh);
 
         ecs::Transform transform{};
@@ -79,7 +76,6 @@ public:
         ecsMesh.ID = lighter->getName();
         ecsMesh.file = lighter->getMesh()->getName();
         ecsMesh.hasAnimation = false;
-        ecsMesh.animationState = "";
         m_register->addComponent<ecs::Mesh>(ecsLighter, ecsMesh);
 
         ecs::Transform transform{};
@@ -108,16 +104,6 @@ public:
         // set up Ogre Entity
         Ogre::Entity *robot = m_sceneManager->createEntity("robot.mesh");
 
-        // possible animation state strings for robot
-        //Die
-        //Idle
-        //Shoot
-        //Slump
-        //Walk
-        Ogre::AnimationState *robotAnimation = robot->getAnimationState("Idle");
-        robotAnimation->setEnabled(true);
-        robotAnimation->setLoop(true);
-
         Ogre::SceneNode * robotWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
         robotWorldNode->setPosition(pos.x, pos.y, pos.z);
 
@@ -132,8 +118,20 @@ public:
         ecs::Mesh ecsMesh;
         ecsMesh.ID = robot->getName();
         ecsMesh.file = robot->getMesh()->getName();
+        // possible animation state strings for robot
+        //Die
+        //Idle
+        //Shoot
+        //Slump
+        //Walk
         ecsMesh.hasAnimation = true;
-        ecsMesh.animationState = robotAnimation->getAnimationName();
+        ecsMesh.animationStates["Idle"] = {"Idle"};
+        ecsMesh.animationStates["Walk"] = {"Walk"};
+        ecsMesh.animationStates["Run"] = {"Walk"};
+        ecsMesh.animationStates["Fight"] = {"Shoot"};
+        ecsMesh.animationStates["Die"] = {"Die"};
+        ecsMesh.animationStates["Jump"] = {"Slump"};
+        ecsMesh.activeAnimations.insert("Idle");
         m_register->addComponent<ecs::Mesh>(ecsRobot, ecsMesh);
 
         ecs::Transform transform{};
@@ -161,24 +159,6 @@ public:
         // set up Ogre Entity
         Ogre::Entity *sinbad = m_sceneManager->createEntity("Sinbad.mesh");
 
-        // possible animation state strings for sinbad
-        //Dance
-        //DrawSwords
-        //HandsClosed
-        //HandsRelaxed
-        //IdleBase
-        //IdleTop
-        //JumpEnd
-        //JumpLoop
-        //JumpStart
-        //RunBase
-        //RunTop
-        //SliceHorizontal
-        //SliceVertical
-        Ogre::AnimationState *sinbadAnimation = sinbad->getAnimationState("IdleTop");
-        sinbadAnimation->setEnabled(true);
-        sinbadAnimation->setLoop(true);
-
         Ogre::SceneNode * sinbadWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
         sinbadWorldNode->setPosition(pos.x, pos.y, pos.z);
 
@@ -196,8 +176,28 @@ public:
         ecs::Mesh ecsMesh;
         ecsMesh.ID = sinbad->getName();
         ecsMesh.file = sinbad->getMesh()->getName();
+        // possible animation state strings for sinbad
+        //Dance
+        //DrawSwords
+        //HandsClosed
+        //HandsRelaxed
+        //IdleBase
+        //IdleTop
+        //JumpEnd
+        //JumpLoop
+        //JumpStart
+        //RunBase
+        //RunTop
+        //SliceHorizontal
+        //SliceVertical
         ecsMesh.hasAnimation = true;
-        ecsMesh.animationState = sinbadAnimation->getAnimationName();
+        ecsMesh.animationStates["Idle"] = {"IdleTop", "IdleBase"};
+        ecsMesh.animationStates["Walk"] = {"RunBase"};
+        ecsMesh.animationStates["Run"] = {"RunTop", "RunBase"};
+        ecsMesh.animationStates["Fight"] = {"SliceHorizontal"};
+        ecsMesh.animationStates["Die"] = {"Dance"};
+        ecsMesh.animationStates["Jump"] = {"JumpLoop"};
+        ecsMesh.activeAnimations.insert("Idle");
         m_register->addComponent<ecs::Mesh>(ecsSinbad, ecsMesh);
 
         ecs::Transform transform{};

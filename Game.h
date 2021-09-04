@@ -17,6 +17,7 @@
 #include "SelectionController.h"
 #include "SelectionBox.h"
 #include "AuxiliaryIdManager.h"
+#include "InfoOverlay.h"
 
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
@@ -49,6 +50,7 @@ public:
      * usage for some class A derived from InputListener: frameStarted can give feedback if class A is 'ready'(?) for frame rendering by returning true or false.
      */
     bool frameRenderingQueued(const Ogre::FrameEvent& evt) override;
+    bool frameEnded(const Ogre::FrameEvent& evt) override;
     bool keyPressed(const OgreBites::KeyboardEvent& evt) override;
     bool keyReleased(const OgreBites::KeyboardEvent& evt) override;
     bool mousePressed(const OgreBites::MouseButtonEvent& evt) override;
@@ -67,6 +69,7 @@ private:
     MouseMode mouseMode = MouseMode::CAMERA;
 
     Ogre::Camera* m_camera;
+    InfoOverlay * m_infoOverlay;
     CameraControl* m_cameraControl;
     TerrainLoader* m_terrainLoader;
     std::shared_ptr<ecs::RenderSystem> m_renderSystem;
@@ -85,6 +88,9 @@ private:
     std::list<ecs::Entity> m_selection;
 
     std::vector<ecs::Entity> m_tempEntities;
+
+    uint8_t m_numFrames{0};
+    Ogre::Timer m_timer;
 
 };
 

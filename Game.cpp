@@ -29,6 +29,7 @@ Game::~Game()
     delete m_terrainLoader;
     delete m_cameraControl;
     delete m_entityFactory;
+    delete m_infoOverlay;
 }
 
 bool Game::deformTerrain(const OgreBites::MouseButtonEvent & evt)
@@ -201,6 +202,17 @@ bool Game::keyPressed(const OgreBites::KeyboardEvent& evt)
     {
         m_cameraControl->keyPressed(evt);
     }
+    if (evt.keysym.sym == 'i')
+    {
+        if (m_infoOverlay->isVisible())
+        {
+            m_infoOverlay->hide();
+        }
+        else
+        {
+            m_infoOverlay->show();
+        }
+    }
     if (evt.keysym.sym == OgreBites::SDLK_SPACE)
     {
         if (mouseMode == MouseMode::CAMERA)
@@ -326,6 +338,10 @@ void Game::setup(void)
 
     m_sceneManager = root->createSceneManager();
 
+    m_sceneManager->addRenderQueueListener((Ogre::RenderQueueListener *)getOverlaySystem());
+    m_infoOverlay = new InfoOverlay(m_sceneManager);
+    m_infoOverlay->setup();
+
     setupECS();
 
     m_terrainLoader = new TerrainLoader(m_sceneManager, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
@@ -350,6 +366,8 @@ void Game::setup(void)
     m_selectionController->switchTo("sphere");
 
     mouseMode = MouseMode::CAMERA;
+
+    m_timer.reset();
 }
 
 void Game::setupECS()
@@ -487,6 +505,22 @@ bool Game::frameRenderingQueued(const Ogre::FrameEvent& evt)
         it->second->frameRendered(evt);
     }
 
+    return true;
+}
+
+bool Game::frameEnded(const Ogre::FrameEvent & evt)
+{
+    m_numFrames++;
+    uint64_t msecs = m_timer.getMilliseconds();
+    if(msecs >= 1000)
+    {
+        Ogre::Real fps = 1000.0f*m_numFrames/msecs;
+        std::stringstream fpsText;
+        fpsText << "Frame Rate [fps]: " << fps << std::endl;
+        m_infoOverlay->setTextLeft(fpsText.str());
+        m_numFrames=0;
+        m_timer.reset();
+    }
     return true;
 }
 

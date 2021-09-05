@@ -29,7 +29,7 @@ public:
     ecs::Entity makeTree(const Ogre::Vector3 &pos)
     {
         // set up Ogre Entity
-        Ogre::Entity *tree = m_sceneManager->createEntity("tree.mesh");
+        Ogre::Entity *tree = m_sceneManager->createEntity("tree_LOD.mesh");
         Ogre::SceneNode * treeWorldNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();
         treeWorldNode->setPosition(pos.x, pos.y, pos.z);
 

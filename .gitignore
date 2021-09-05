@@ -1,6 +1,7 @@
 .idea/*
 .vscode/*
 build/*
+notes/*
 
 # Sourcetrail
 *.srctrlbm

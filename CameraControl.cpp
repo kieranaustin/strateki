@@ -40,7 +40,7 @@ void CameraControl::setup()
 {
     // set camera
     m_camera->setNearClipDistance(0.1);
-    m_camera->setFarClipDistance(12000000.0f);
+    m_camera->setFarClipDistance(12000.0f);
     m_camera->setAutoAspectRatio(true);
 
     m_cameraRigNode = m_sceneManager->getRootSceneNode()->createChildSceneNode();

@@ -2,6 +2,9 @@
 // Created by kieran on 19.11.20.
 //
 
+#ifndef STRATEKI_ENTITYFACTORY_H
+#define STRATEKI_ENTITYFACTORY_H
+
 #include <Ogre.h>
 #include "ecs/Definitions.h"
 #include "ecs/components/Components.h"
@@ -225,3 +228,4 @@ private:
     AuxiliaryIdManager<Ogre::String> * m_auxIdManager = nullptr;
 };
 
+#endif //STRATEKI_ENTITYFACTORY_H

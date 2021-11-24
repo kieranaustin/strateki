@@ -24,18 +24,6 @@ CameraControl::CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre
     m_cameraRigNode->setPosition(0.0f, -3.0f*max/4.0f, m_TerrainGroup->getHeightAtWorldPosition(0.0f,-3.0f*max/4.0f,0));
 }
 
-CameraControl::~CameraControl()
-{
-    m_camera = nullptr;
-    m_sceneManager = nullptr;
-    m_cameraRigNode = nullptr;
-    m_cameraRigRotateNode = nullptr;
-    m_cameraNode = nullptr;
-    m_TerrainGroup = nullptr;
-    m_coordAxes = nullptr;
-    m_coordAxesRotate = nullptr;
-}
-
 void CameraControl::setup()
 {
     // set camera

@@ -38,6 +38,7 @@ namespace Helper
                 }
             }
         }
+        sceneManager->destroyQuery(query);
         return neighbours;
     }
 }

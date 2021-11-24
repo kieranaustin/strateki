@@ -14,8 +14,6 @@ TerrainLoader::TerrainLoader(Ogre::SceneManager* sceneManager, int size, double 
 
 TerrainLoader::~TerrainLoader()
 {
-    m_sceneManager = nullptr;
-    m_TerrainGroup = nullptr;
     delete m_TerrainGlobOpts;
 }
 

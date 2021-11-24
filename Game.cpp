@@ -17,15 +17,13 @@
 ecs::Register aRegister;
 AuxiliaryIdManager<Ogre::String> aAuxIdManager;
 
-Game::Game() : OgreBites::ApplicationContext("first try")
+Game::Game() : OgreBites::ApplicationContextQt("first try")
 {
-
 }
 
 Game::~Game()
 {
-    m_sceneManager = nullptr;
-    m_camera = nullptr;
+    delete m_selectionController;
     delete m_terrainLoader;
     delete m_cameraControl;
     delete m_entityFactory;
@@ -329,7 +327,18 @@ bool Game::mouseWheelRolled(const OgreBites::MouseWheelEvent& evt)
 
 void Game::setup(void)
 {
-    OgreBites::ApplicationContext::setup();
+    //OgreBites::ApplicationContextQt::setup();
+    //
+    mRoot->initialise(false);
+    m_windowPair = createWindow(mAppName);
+
+    locateResources();
+    initialiseRTShaderSystem();
+    loadResources();
+
+    // adds context as listener to process context-level (above the sample level) events
+    mRoot->addFrameListener(this);
+    //
 
     Ogre::Root* root = getRoot();
 

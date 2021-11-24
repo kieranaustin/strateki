@@ -2,7 +2,7 @@
 // Created by kieran on 16.05.20.
 //
 #include <Ogre.h>
-#include <Bites/OgreApplicationContext.h>
+#include <Bites/OgreApplicationContextQt.h>
 #include <Terrain/OgreTerrain.h>
 #include <Terrain/OgreTerrainGroup.h>
 #include "CameraControl.h"
@@ -34,9 +34,11 @@ enum MouseMode
 };
 
 class Game :
-        public OgreBites::ApplicationContext,
+        public OgreBites::ApplicationContextQt,
         public OgreBites::InputListener
 {
+    Q_OBJECT
+
 public:
     Game();
     ~Game();
@@ -57,6 +59,8 @@ public:
     bool mouseMoved(const OgreBites::MouseMotionEvent& evt) override;
     bool mouseReleased(const OgreBites::MouseButtonEvent& evt) override;
     bool mouseWheelRolled(const OgreBites::MouseWheelEvent& evt) override;
+
+    OgreBites::NativeWindowType * getNativeWindow() {return m_windowPair.native;}
 
 private:
     bool deformTerrain(const OgreBites::MouseButtonEvent& evt);
@@ -91,6 +95,7 @@ private:
 
     uint8_t m_numFrames{0};
     Ogre::Timer m_timer;
+    OgreBites::NativeWindowPair m_windowPair;
 
 };
 

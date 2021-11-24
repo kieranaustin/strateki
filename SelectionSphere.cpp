@@ -21,7 +21,6 @@ SelectionSphere::SelectionSphere(Ogre::SceneManager * sceneManager, Ogre::Camera
 SelectionSphere::~SelectionSphere()
 {
     m_sceneManager->destroyQuery(m_sphereQuery);
-    m_sceneManager->destroyEntity(static_cast<Ogre::Entity*>(m_view));
 }
 
 bool SelectionSphere::beginSelection(const int mouseX, const int mouseY)

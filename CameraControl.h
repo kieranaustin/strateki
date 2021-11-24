@@ -12,10 +12,9 @@ class CameraControl
         : public OgreBites::InputListener, public Ogre::FrameListener
 {
 public:
-    CameraControl();
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr);
     CameraControl(Ogre::Camera* cam, Ogre::SceneManager* scnMgr, Ogre::TerrainGroup* trnGrp);
-    ~CameraControl();
+    ~CameraControl() override = default;
 
     void setup();
 
